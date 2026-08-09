@@ -1,0 +1,6 @@
+import {
+  "your-owner/cakecheck" @audit
+}
+
+pkgtype(kind: "executable")
+
