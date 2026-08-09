@@ -1,0 +1,11 @@
+.moon/
+_build/
+target/
+build/
+*.wasm
+*.js
+*.c
+*.o
+*.exe
+.DS_Store
+
