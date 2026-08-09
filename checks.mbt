@@ -53,7 +53,7 @@ fn audit_manifest(checks : Array[AuditCheck], manifest : ManifestInfo) -> Unit {
           Error,
           "package-name-format",
           "package name must use owner/package format",
-          "Example: your-owner/cakecheck.",
+          "Example: owner/cakecheck.",
         ))
       }
       if has_placeholder(name) {

@@ -19,16 +19,16 @@ MoonBit 包作者在发布前通常需要反复确认 `moon.mod`、README、CI�
 发布后可在 MoonBit 项目中添加：
 
 ```bash
-moon add your-owner/cakecheck@0.1.0
+moon add ZBZ-ai-nb/cakecheck@0.1.0
 ```
 
 当前 Mooncakes 包名：
 
 ```text
-your-owner/cakecheck
+ZBZ-ai-nb/cakecheck
 ```
 
-提交前请把 `your-owner`、`your-github` 替换为参赛者自己的 Mooncakes owner 和 GitHub 用户名，并保持 README、申报书、`moon.mod` 一致。
+GitHub 仓库、README、申报书和 `moon.mod` 中的包名保持一致。
 
 ## 最小使用示例
 
@@ -113,10 +113,10 @@ moon publish --dry-run
 `moon.mod` 发布字段：
 
 ```text
-name = "your-owner/cakecheck"
+name = "ZBZ-ai-nb/cakecheck"
 version = "0.1.0"
 readme = "README.md"
-repository = "https://github.com/your-github/cakecheck.git"
+repository = "https://github.com/ZBZ-ai-nb/cakecheck.git"
 license = "MIT"
 description = "MoonBit package readiness auditor for Mooncakes releases"
 ```
@@ -132,8 +132,8 @@ moon publish
 发布后检查：
 
 ```text
-https://mooncakes.io/docs/your-owner/cakecheck
-https://mooncakes.io/api/v0/manifest/your-owner/cakecheck
+https://mooncakes.io/docs/ZBZ-ai-nb/cakecheck
+https://mooncakes.io/api/v0/manifest/ZBZ-ai-nb/cakecheck
 ```
 
 ## 开源许可证与参考

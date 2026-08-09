@@ -5,7 +5,7 @@
 - 项目名称：CakeCheck：MoonBit/Mooncakes 包发布前质量审计库
 - 参赛者：张丙政
 - 联系方式：17355718297 / 3525658676@qq.com
-- GitHub 仓库链接：https://github.com/your-github/cakecheck
+- GitHub 仓库链接：https://github.com/ZBZ-ai-nb/cakecheck
 - 项目方向：MoonBit 生态开发工具 / Mooncakes 发布质量门禁 / CI 辅助库
 - 是否为移植项目：否，原创 MoonBit 开源项目
 - 开源许可证：MIT

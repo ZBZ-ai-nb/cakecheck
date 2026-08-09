@@ -6,8 +6,8 @@
 - 项目定位：MoonBit/Mooncakes 包发布前质量审计库
 - 参赛者：张丙政
 - 联系方式：17355718297 / 3525658676@qq.com
-- GitHub 仓库链接：https://github.com/your-github/cakecheck
-- Mooncakes 包名：your-owner/cakecheck
+- GitHub 仓库链接：https://github.com/ZBZ-ai-nb/cakecheck
+- Mooncakes 包名：ZBZ-ai-nb/cakecheck
 - 开源许可证：MIT
 
 ## 项目背景与选题说明
@@ -66,15 +66,15 @@ Total tests: 11, passed: 11, failed: 0.
 项目已配置 GitHub Actions CI，覆盖 MoonBit 安装、检查、构建、测试、示例运行和 CLI smoke test。`moon.mod` 已包含 Mooncakes 发布所需字段：
 
 ```text
-name = "your-owner/cakecheck"
+name = "ZBZ-ai-nb/cakecheck"
 version = "0.1.0"
 readme = "README.md"
-repository = "https://github.com/your-github/cakecheck.git"
+repository = "https://github.com/ZBZ-ai-nb/cakecheck.git"
 license = "MIT"
 description = "MoonBit package readiness auditor for Mooncakes releases"
 ```
 
-正式提交前需要将 `your-owner`、`your-github` 替换为参赛者自己的 Mooncakes owner 和 GitHub 用户名，然后执行：
+正式提交前需要确认 Mooncakes owner 与包名可用，然后执行：
 
 ```bash
 moon login
@@ -100,4 +100,3 @@ moon publish
 - 增加 Mooncakes API 结果导入；
 - 增加 Git 提交信息规则检查；
 - 增加 HTML 报告或 SARIF 导出。
-

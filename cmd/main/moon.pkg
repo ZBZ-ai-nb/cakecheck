@@ -1,6 +1,5 @@
 import {
-  "your-owner/cakecheck" @audit
+  "ZBZ-ai-nb/cakecheck" @audit
 }
 
 pkgtype(kind: "executable")
-
