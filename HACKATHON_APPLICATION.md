@@ -29,7 +29,7 @@ CakeCheck 用 MoonBit 实现一个面向 Mooncakes 包发布前自检的审计�
 
 ## 项目现有基础与本次计划
 
-当前项目已包含 MoonBit 工程配置、核心源码、测试、示例、README、MIT 许可证、GitHub Actions CI、API 文档、设计说明、测试记录和 Mooncakes 发布字段。参赛者需要替换个人 GitHub 与 Mooncakes 信息，推送公开仓库，运行验收命令并发布到 mooncakes.io。
+当前项目已包含 MoonBit 工程配置、核心源码、测试、示例、README、MIT 许可证、GitHub Actions CI、API 文档、设计说明、测试记录和 Mooncakes 发布字段。GitHub 公开仓库已完成，参赛者还需要登录 Mooncakes，运行验收命令并发布到 mooncakes.io。
 
 ## 原创或参考说明
 
