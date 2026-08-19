@@ -40,6 +40,7 @@ moon test: 17 passed, 0 failed
 moon test --deny-warn: 17 passed, 0 failed
 moon run examples/basic: pass
 moon run cmd/main: pass
+moon info: pass
 git diff --check: pass
 ```
 

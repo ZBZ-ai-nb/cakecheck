@@ -35,6 +35,7 @@ Two acceptance items still require account-side action:
 | Build | Pass | `moon build` |
 | Strict warning check | Pass | `moon check --deny-warn` |
 | Formatting | Pass | `moon fmt --check` |
+| API snapshot | Pass | `moon info`, `pkg.generated.mbti` |
 | CI config | Pass | `.github/workflows/ci.yml` |
 | License | Pass | root `LICENSE` is MIT |
 | Changelog | Pass | `CHANGELOG.md` |
@@ -56,6 +57,7 @@ moon test
 moon test --deny-warn
 moon run examples/basic
 moon run cmd/main
+moon info
 git diff --check
 ```
 

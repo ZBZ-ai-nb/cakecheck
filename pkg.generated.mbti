@@ -1,0 +1,475 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "ZBZ-ai-nb/cakecheck"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn acceptance_level_name(AcceptanceLevel) -> String
+
+pub fn acceptance_reviews_table(Array[AcceptanceReview]) -> String
+
+pub fn all_match(String, Array[String]) -> Bool
+
+pub fn analyze_license(String) -> LicenseFacts
+
+pub fn analyze_namespace(String, String) -> NamespaceInfo
+
+pub fn analyze_readme(String) -> ReadmeMetrics
+
+pub fn analyze_workflow(String) -> WorkflowInfo
+
+pub fn any_match(String, Array[String]) -> Bool
+
+pub fn audit_project(AuditInput) -> AuditReport
+
+pub fn build_acceptance_evidence(AuditInput) -> EvidenceMatrix
+
+pub fn build_quality_matrix(AuditInput) -> QualityMatrix
+
+pub fn build_release_plan(AuditInput) -> ReleasePlan
+
+pub fn canonicalize_token(String) -> String
+
+pub fn classify_version_bump(String, String) -> VersionBump
+
+pub fn compare_evidence(EvidenceMatrix, EvidenceMatrix) -> AuditDiff
+
+pub fn compare_semver(String, String) -> Int
+
+pub fn contains_word(String, String) -> Bool
+
+pub fn count_word(String, String) -> Int
+
+pub fn diff_reports(AuditReport, AuditReport) -> AuditDiff
+
+pub fn evidence_from_report(AuditInput, AuditReport) -> EvidenceMatrix
+
+pub fn evidence_markdown_summary(AuditInput) -> String
+
+pub fn extract_inline_link_target(String) -> String?
+
+pub fn extract_inline_link_text(String) -> String?
+
+pub fn first_token(String) -> String
+
+pub fn github_owner_repo(String) -> Array[String]
+
+pub fn heading_level(String) -> Int
+
+pub fn heading_text(String) -> String
+
+pub fn is_badge_line(String) -> Bool
+
+pub fn is_bullet_line(String) -> Bool
+
+pub fn is_command_line(String) -> Bool
+
+pub fn is_fence_line(String) -> Bool
+
+pub fn is_heading_line(String) -> Bool
+
+pub fn is_markdown_link_line(String) -> Bool
+
+pub fn is_numbered_line(String) -> Bool
+
+pub fn last_token(String) -> String
+
+pub fn license_compatibility_note(LicenseFacts, LicenseFacts) -> String
+
+pub fn license_family_name(LicenseFamily) -> String
+
+pub fn license_notice_template(String, String, Int) -> String
+
+pub fn longest_section_title(ReadmeMetrics) -> String
+
+pub fn mooncakes_package_page(String) -> String
+
+pub fn namespace_acceptance_issue(NamespaceInfo) -> String
+
+pub fn namespace_alignment_table(Array[NamespaceInfo]) -> String
+
+pub fn namespace_from_manifest(ManifestInfo) -> NamespaceInfo
+
+pub fn namespace_has_placeholder(String) -> Bool
+
+pub fn package_name_from_repository(String) -> String
+
+pub fn parse_manifest(String) -> ManifestInfo
+
+pub fn parse_semver(String) -> SemVerInfo
+
+pub fn quality_axis_named(QualityMatrix, String) -> QualityAxis?
+
+pub fn quality_from_report(AuditInput, AuditReport) -> QualityMatrix
+
+pub fn quality_matrix_table(Array[QualityMatrix]) -> String
+
+pub fn readme_topic_table(ReadmeMetrics) -> String
+
+pub fn recommend_release_version(String, VersionBump) -> String
+
+pub fn release_plan_from_report(AuditInput, AuditReport) -> ReleasePlan
+
+pub fn release_plan_has_command(ReleasePlan, String) -> Bool
+
+pub fn release_plan_table(Array[ReleasePlan]) -> String
+
+pub fn remove_trailing_punctuation(String) -> String
+
+pub fn review_acceptance(AuditInput) -> AcceptanceReview
+
+pub fn sample_good_input() -> AuditInput
+
+pub fn sample_risky_input() -> AuditInput
+
+pub fn semver_accepts_mooncakes_release(String) -> Bool
+
+pub fn semver_release_table(Array[String]) -> String
+
+pub fn split_tokens(String) -> Array[String]
+
+pub fn suggested_package_name(String, String) -> String
+
+pub fn version_bump_name(VersionBump) -> String
+
+pub fn workflow_acceptance_label(WorkflowInfo) -> String
+
+pub fn workflow_command_table(WorkflowInfo) -> String
+
+// Errors
+
+// Types and methods
+pub(all) enum AcceptanceLevel {
+  AcceptanceReady
+  AcceptanceNearlyReady
+  AcceptanceNeedsWork
+  AcceptanceBlocked
+} derive(Eq, @debug.Debug)
+
+pub(all) struct AcceptanceReview {
+  report : AuditReport
+  evidence : EvidenceMatrix
+  quality : QualityMatrix
+  release_plan : ReleasePlan
+  level : AcceptanceLevel
+  decision : String
+} derive(Eq, @debug.Debug)
+pub fn AcceptanceReview::blocking_reasons(Self) -> Array[String]
+pub fn AcceptanceReview::is_likely_to_pass(Self) -> Bool
+pub fn AcceptanceReview::is_submission_risky(Self) -> Bool
+pub fn AcceptanceReview::level_name(Self) -> String
+pub fn AcceptanceReview::next_actions(Self) -> Array[String]
+pub fn AcceptanceReview::positive_signals(Self) -> Array[String]
+pub fn AcceptanceReview::summary(Self) -> String
+pub fn AcceptanceReview::to_markdown(Self) -> String
+
+pub(all) struct AuditCheck {
+  category : Category
+  severity : Severity
+  code : String
+  message : String
+  hint : String
+} derive(Eq, @debug.Debug)
+
+pub(all) struct AuditDiff {
+  before_readiness : Int
+  after_readiness : Int
+  readiness_delta : Int
+  fixed_codes : Array[String]
+  new_problem_codes : Array[String]
+} derive(Eq, @debug.Debug)
+pub fn AuditDiff::summary(Self) -> String
+pub fn AuditDiff::to_markdown(Self) -> String
+
+pub(all) struct AuditInput {
+  moon_mod : String
+  readme : String
+  ci : String
+  license_text : String
+  changelog : String
+  repository_public : Bool
+  commit_count : Int
+  package_published : Bool
+} derive(Eq, @debug.Debug)
+
+pub(all) enum AuditProfile {
+  Quick
+  Release
+  Hackathon
+} derive(Eq, @debug.Debug)
+
+pub(all) struct AuditReport {
+  package_name : String
+  version : String
+  checks : Array[AuditCheck]
+  score : Score
+} derive(Eq, @debug.Debug)
+pub fn AuditReport::first_problem(Self) -> AuditCheck?
+pub fn AuditReport::gate(Self, AuditProfile) -> GateResult
+pub fn AuditReport::has_errors(Self) -> Bool
+pub fn AuditReport::is_ready(Self) -> Bool
+pub fn AuditReport::pass_count(Self, Category) -> Int
+pub fn AuditReport::problem_count(Self, Category) -> Int
+pub fn AuditReport::remediation_plan(Self, Int) -> String
+pub fn AuditReport::summary(Self) -> String
+pub fn AuditReport::to_json(Self) -> String
+pub fn AuditReport::to_markdown(Self) -> String
+
+pub(all) enum Category {
+  Manifest
+  Readme
+  CI
+  License
+  Release
+  Repository
+} derive(Eq, @debug.Debug)
+
+pub(all) struct EvidenceItem {
+  code : String
+  label : String
+  present : Bool
+  source : String
+} derive(Eq, @debug.Debug)
+pub fn EvidenceItem::markdown_row(Self) -> String
+pub fn EvidenceItem::status_text(Self) -> String
+
+pub(all) struct EvidenceMatrix {
+  items : Array[EvidenceItem]
+  present_count : Int
+  missing_count : Int
+} derive(Eq, @debug.Debug)
+pub fn EvidenceMatrix::acceptance_label(Self) -> String
+pub fn EvidenceMatrix::coverage_percent(Self) -> Int
+pub fn EvidenceMatrix::has(Self, String) -> Bool
+pub fn EvidenceMatrix::is_complete(Self) -> Bool
+pub fn EvidenceMatrix::missing_codes(Self) -> Array[String]
+pub fn EvidenceMatrix::missing_items(Self) -> Array[EvidenceItem]
+pub fn EvidenceMatrix::missing_label_text(Self) -> String
+pub fn EvidenceMatrix::present_items(Self) -> Array[EvidenceItem]
+pub fn EvidenceMatrix::summary(Self) -> String
+pub fn EvidenceMatrix::to_json(Self) -> String
+pub fn EvidenceMatrix::to_markdown(Self) -> String
+
+pub(all) struct GateResult {
+  profile : AuditProfile
+  passed : Bool
+  message : String
+  required_codes : Array[String]
+} derive(Eq, @debug.Debug)
+pub fn GateResult::summary(Self) -> String
+
+pub(all) struct LicenseFacts {
+  family : LicenseFamily
+  spdx_id : String
+  osi_approved : Bool
+  has_copyright : Bool
+  has_permission_grant : Bool
+  has_warranty_disclaimer : Bool
+  has_patent_grant : Bool
+} derive(Eq, @debug.Debug)
+pub fn LicenseFacts::completeness_score(Self) -> Int
+pub fn LicenseFacts::is_publishable(Self) -> Bool
+pub fn LicenseFacts::summary(Self) -> String
+pub fn LicenseFacts::to_markdown(Self) -> String
+
+pub(all) enum LicenseFamily {
+  MIT
+  Apache2
+  BSD2
+  BSD3
+  MPL2
+  UnknownLicense
+} derive(Eq, @debug.Debug)
+
+pub(all) struct ManifestField {
+  key : String
+  value : String
+  line : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) struct ManifestInfo {
+  fields : Array[ManifestField]
+  duplicates : Array[String]
+  malformed_lines : Array[Int]
+} derive(Eq, @debug.Debug)
+pub fn ManifestInfo::get(Self, String) -> String?
+pub fn ManifestInfo::has(Self, String) -> Bool
+pub fn ManifestInfo::package_name(Self) -> String
+pub fn ManifestInfo::version(Self) -> String
+
+pub(all) struct NamespaceInfo {
+  raw : String
+  owner : String
+  package_name : String
+  valid : Bool
+  owner_matches_github : Bool
+  package_matches_repo : Bool
+} derive(Eq, @debug.Debug)
+pub fn NamespaceInfo::canonical_name(Self) -> String
+pub fn NamespaceInfo::github_url(Self) -> String
+pub fn NamespaceInfo::is_publishable(Self) -> Bool
+pub fn NamespaceInfo::mooncakes_url(Self) -> String
+pub fn NamespaceInfo::recommendation(Self) -> String
+pub fn NamespaceInfo::repository_git_url(Self) -> String
+pub fn NamespaceInfo::risk_level(Self) -> String
+pub fn NamespaceInfo::summary(Self) -> String
+pub fn NamespaceInfo::to_markdown(Self) -> String
+
+pub(all) struct QualityAxis {
+  name : String
+  score : Int
+  weight : Int
+  note : String
+} derive(Eq, @debug.Debug)
+pub fn QualityAxis::markdown_row(Self) -> String
+pub fn QualityAxis::max_points(Self) -> Int
+pub fn QualityAxis::rating(Self) -> String
+pub fn QualityAxis::weighted_points(Self) -> Int
+
+pub(all) struct QualityMatrix {
+  axes : Array[QualityAxis]
+  weighted_score : Int
+  max_score : Int
+  normalized_score : Int
+} derive(Eq, @debug.Debug)
+pub fn QualityMatrix::grade(Self) -> String
+pub fn QualityMatrix::improvement_notes(Self) -> Array[String]
+pub fn QualityMatrix::is_competitive(Self) -> Bool
+pub fn QualityMatrix::lowest_axis_name(Self) -> String
+pub fn QualityMatrix::lowest_score(Self) -> Int
+pub fn QualityMatrix::summary(Self) -> String
+pub fn QualityMatrix::to_markdown(Self) -> String
+
+pub(all) struct ReadmeMetrics {
+  line_count : Int
+  heading_count : Int
+  code_block_count : Int
+  command_count : Int
+  link_count : Int
+  bullet_count : Int
+  has_installation : Bool
+  has_usage : Bool
+  has_example : Bool
+  has_validation : Bool
+  has_license : Bool
+  has_support_scope : Bool
+  has_unsupported_scope : Bool
+  sections : Array[SectionInfo]
+} derive(Eq, @debug.Debug)
+pub fn ReadmeMetrics::coverage_score(Self) -> Int
+pub fn ReadmeMetrics::is_complete(Self) -> Bool
+pub fn ReadmeMetrics::missing_topics(Self) -> Array[String]
+pub fn ReadmeMetrics::summary(Self) -> String
+pub fn ReadmeMetrics::to_markdown(Self) -> String
+
+pub(all) struct ReleasePlan {
+  package_name : String
+  version : String
+  steps : Array[ReleaseStep]
+  blockers : Array[String]
+} derive(Eq, @debug.Debug)
+pub fn ReleasePlan::command_script(Self) -> String
+pub fn ReleasePlan::commands(Self) -> Array[String]
+pub fn ReleasePlan::first_blocker(Self) -> String
+pub fn ReleasePlan::is_blocked(Self) -> Bool
+pub fn ReleasePlan::optional_steps(Self) -> Array[ReleaseStep]
+pub fn ReleasePlan::publish_steps(Self) -> Array[ReleaseStep]
+pub fn ReleasePlan::required_steps(Self) -> Array[ReleaseStep]
+pub fn ReleasePlan::summary(Self) -> String
+pub fn ReleasePlan::to_markdown(Self) -> String
+pub fn ReleasePlan::validation_steps(Self) -> Array[ReleaseStep]
+
+pub(all) struct ReleaseStep {
+  index : Int
+  command : String
+  required : Bool
+  description : String
+} derive(Eq, @debug.Debug)
+pub fn ReleaseStep::is_publish(Self) -> Bool
+pub fn ReleaseStep::is_validation(Self) -> Bool
+pub fn ReleaseStep::label(Self) -> String
+pub fn ReleaseStep::markdown_row(Self) -> String
+
+pub(all) struct Score {
+  pass_count : Int
+  info_count : Int
+  warning_count : Int
+  error_count : Int
+  total : Int
+  readiness : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) struct SectionInfo {
+  title : String
+  level : Int
+  line : Int
+  body_lines : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) struct SemVerInfo {
+  valid : Bool
+  major : Int
+  minor : Int
+  patch : Int
+  pre_release : String?
+  build_metadata : String?
+} derive(Eq, @debug.Debug)
+pub fn SemVerInfo::acceptance_note(Self) -> String
+pub fn SemVerInfo::compare(Self, Self) -> Int
+pub fn SemVerInfo::core(Self) -> String
+pub fn SemVerInfo::format(Self) -> String
+pub fn SemVerInfo::has_build_metadata(Self) -> Bool
+pub fn SemVerInfo::is_prerelease(Self) -> Bool
+pub fn SemVerInfo::is_stable(Self) -> Bool
+pub fn SemVerInfo::next_major(Self) -> String
+pub fn SemVerInfo::next_minor(Self) -> String
+pub fn SemVerInfo::next_patch(Self) -> String
+pub fn SemVerInfo::release_channel(Self) -> String
+pub fn SemVerInfo::to_markdown(Self) -> String
+
+pub(all) enum Severity {
+  Pass
+  Info
+  Warning
+  Error
+} derive(Eq, @debug.Debug)
+
+pub(all) enum VersionBump {
+  Major
+  Minor
+  Patch
+  SameVersion
+  InvalidVersion
+} derive(Eq, @debug.Debug)
+
+pub(all) struct WorkflowCommand {
+  name : String
+  command : String
+  line : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) struct WorkflowInfo {
+  command_count : Int
+  moon_command_count : Int
+  has_checkout : Bool
+  has_moon_install : Bool
+  has_check : Bool
+  has_build : Bool
+  has_test : Bool
+  has_run : Bool
+  has_publish_dry_run : Bool
+  targets : Array[String]
+  commands : Array[WorkflowCommand]
+} derive(Eq, @debug.Debug)
+pub fn WorkflowInfo::coverage_score(Self) -> Int
+pub fn WorkflowInfo::is_acceptance_ready(Self) -> Bool
+pub fn WorkflowInfo::missing_commands(Self) -> Array[String]
+pub fn WorkflowInfo::summary(Self) -> String
+pub fn WorkflowInfo::to_markdown(Self) -> String
+
+// Type aliases
+
+// Traits
+

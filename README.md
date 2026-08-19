@@ -115,6 +115,7 @@ moon build
 moon test
 moon run examples/basic
 moon run cmd/main
+moon info
 moon publish --dry-run
 ```
 
@@ -137,6 +138,7 @@ moon publish --dry-run
 - `docs/ACCEPTANCE_SELF_REVIEW.md`：验收自查证据。
 - `docs/PUSH_RELEASE_CHECKLIST.md`：推送和 Mooncakes 发布清单。
 - `docs/DEVELOPMENT_RECORD.md`：开发过程、工单和设计决策记录。
+- `pkg.generated.mbti`：`moon info` 生成的公开 API 快照。
 
 ## Mooncakes 发布
 

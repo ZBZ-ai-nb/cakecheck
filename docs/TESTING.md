@@ -20,6 +20,7 @@ moon test
 moon test --deny-warn
 moon run examples/basic
 moon run cmd/main
+moon info
 ```
 
 测试结果：
