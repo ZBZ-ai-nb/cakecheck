@@ -1,15 +1,19 @@
+///|
 pub fn AuditReport::has_errors(self : AuditReport) -> Bool {
   self.score.error_count > 0
 }
 
+///|
 pub fn AuditReport::is_ready(self : AuditReport) -> Bool {
   self.score.error_count == 0 && self.score.warning_count == 0
 }
 
+///|
 pub fn AuditReport::summary(self : AuditReport) -> String {
   "package=\{self.package_name}, version=\{self.version}, readiness=\{self.score.readiness}, errors=\{self.score.error_count}, warnings=\{self.score.warning_count}"
 }
 
+///|
 pub fn AuditReport::to_markdown(self : AuditReport) -> String {
   let mut out = "# CakeCheck Audit Report\n\n"
   out = out + "- Package: `" + self.package_name + "`\n"
@@ -31,6 +35,7 @@ pub fn AuditReport::to_markdown(self : AuditReport) -> String {
   out
 }
 
+///|
 pub fn AuditReport::to_json(self : AuditReport) -> String {
   let mut out = "{"
   out = out + "\"package\":\"" + json_escape(self.package_name) + "\","
@@ -56,6 +61,7 @@ pub fn AuditReport::to_json(self : AuditReport) -> String {
   out + "]}"
 }
 
+///|
 fn json_escape(value : String) -> String {
   let mut out = ""
   let mut index = 0
@@ -74,4 +80,3 @@ fn json_escape(value : String) -> String {
   }
   out
 }
-

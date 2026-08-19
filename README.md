@@ -4,7 +4,7 @@ CakeCheck 是一个用 MoonBit 实现的 MoonBit/Mooncakes 包发布前质量审
 
 ## 解决的问题
 
-MoonBit 包作者在发布前通常需要反复确认 `moon.mod`、README、CI、许可证、提交记录、Mooncakes 发布状态是否一致。CakeCheck 接收这些文件文本和仓库状态，输出结构化检查结果、ready 分数、门禁结果、修复计划、Markdown 报告和 JSON 摘要，适合接入 CI、发布脚本、课程作业检查器或开源项目维护工具。
+MoonBit 包作者在发布前通常需要反复确认 `moon.mod`、README、CI、许可证、提交记录、Mooncakes 发布状态是否一致。CakeCheck 接收这些文件文本和仓库状态，输出结构化检查结果、ready 分数、门禁结果、修复计划、证据矩阵、质量矩阵、发布计划、Markdown 报告和 JSON 摘要，适合接入 CI、发布脚本、课程作业检查器或开源项目维护工具。
 
 ## 适用场景
 
@@ -66,6 +66,15 @@ pub fn AuditReport::is_ready(self : AuditReport) -> Bool
 pub fn AuditReport::gate(self : AuditReport, profile : AuditProfile) -> GateResult
 pub fn AuditReport::remediation_plan(self : AuditReport, limit : Int) -> String
 pub fn diff_reports(before : AuditReport, after : AuditReport) -> AuditDiff
+pub fn analyze_readme(readme : String) -> ReadmeMetrics
+pub fn analyze_workflow(text : String) -> WorkflowInfo
+pub fn analyze_license(text : String) -> LicenseFacts
+pub fn parse_semver(value : String) -> SemVerInfo
+pub fn analyze_namespace(raw : String, repository : String) -> NamespaceInfo
+pub fn build_acceptance_evidence(input : AuditInput) -> EvidenceMatrix
+pub fn build_release_plan(input : AuditInput) -> ReleasePlan
+pub fn build_quality_matrix(input : AuditInput) -> QualityMatrix
+pub fn review_acceptance(input : AuditInput) -> AcceptanceReview
 ```
 
 核心检查包括：
@@ -77,6 +86,8 @@ pub fn diff_reports(before : AuditReport, after : AuditReport) -> AuditDiff
 - 仓库是否公开、提交数量是否足够、CHANGELOG 是否存在。
 - Mooncakes 发布状态和占位符风险。
 - 不同 profile 下的发布门禁结果。
+- README 结构指标、CI 命令覆盖、许可证事实、semver 版本比较和包命名空间一致性。
+- 验收证据矩阵、Mooncakes 发布计划、质量矩阵和最终验收评审摘要。
 
 ## 支持范围
 
@@ -86,6 +97,7 @@ pub fn diff_reports(before : AuditReport, after : AuditReport) -> AuditDiff
 - 支持 Quick、Release、Hackathon 三种门禁 profile。
 - 支持生成修复建议计划，优先列出错误和警告。
 - 支持比较两次审计结果，展示 ready 分数变化、已修复项和新增问题。
+- 支持生成 Acceptance Evidence、Release Plan、Quality Matrix 和 Acceptance Review。
 - 不依赖第三方库，不读取外部文件，不访问网络。
 
 ## 暂不支持范围
@@ -106,7 +118,14 @@ moon run cmd/main
 moon publish --dry-run
 ```
 
-测试覆盖正常项目、风险项目、moon.mod 解析、中英文 README 覆盖项、CI 命令、评分、Markdown 与 JSON 导出、profile 门禁、修复计划和审计 diff。
+测试覆盖正常项目、风险项目、moon.mod 解析、中英文 README 覆盖项、CI 命令、评分、Markdown 与 JSON 导出、profile 门禁、修复计划、审计 diff、semver、命名空间、证据矩阵、发布计划、质量矩阵和验收评审。
+
+当前 MoonBit 源码规模：
+
+```text
+4,776 non-empty non-comment MoonBit code lines
+5,462 total .mbt lines
+```
 
 ## Mooncakes 发布
 

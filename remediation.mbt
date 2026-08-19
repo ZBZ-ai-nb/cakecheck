@@ -1,3 +1,4 @@
+///|
 pub fn AuditReport::remediation_plan(self : AuditReport, limit : Int) -> String {
   let mut out = "# Remediation Plan\n\n"
   let mut emitted = 0
@@ -20,11 +21,12 @@ pub fn AuditReport::remediation_plan(self : AuditReport, limit : Int) -> String 
   }
 }
 
+///|
 fn collect_remediation_by_severity(
   report : AuditReport,
   severity : Severity,
   limit : Int,
-  emitted : Int
+  emitted : Int,
 ) -> (String, Int) {
   let mut out = ""
   let mut count = emitted
@@ -43,6 +45,7 @@ fn collect_remediation_by_severity(
   (out, count)
 }
 
+///|
 fn remediation_line(index : Int, item : AuditCheck) -> String {
   let mut line = "\{index}. [" + severity_name(item.severity) + "] "
   line = line + item.message + " (`" + item.code + "`)"
@@ -52,6 +55,7 @@ fn remediation_line(index : Int, item : AuditCheck) -> String {
   line + "\n"
 }
 
+///|
 pub fn AuditReport::first_problem(self : AuditReport) -> AuditCheck? {
   let mut index = 0
   while index < self.checks.length() {

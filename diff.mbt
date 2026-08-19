@@ -1,3 +1,4 @@
+///|
 pub fn diff_reports(before : AuditReport, after : AuditReport) -> AuditDiff {
   let fixed : Array[String] = []
   let new_problems : Array[String] = []
@@ -30,10 +31,12 @@ pub fn diff_reports(before : AuditReport, after : AuditReport) -> AuditDiff {
   )
 }
 
+///|
 pub fn AuditDiff::summary(self : AuditDiff) -> String {
   "readiness \{self.before_readiness}->\{self.after_readiness} (delta=\{self.readiness_delta}), fixed=\{self.fixed_codes.length()}, new=\{self.new_problem_codes.length()}"
 }
 
+///|
 pub fn AuditDiff::to_markdown(self : AuditDiff) -> String {
   let mut out = "# CakeCheck Diff\n\n"
   out = out + "- Before readiness: " + self.before_readiness.to_string() + "\n"
@@ -46,6 +49,7 @@ pub fn AuditDiff::to_markdown(self : AuditDiff) -> String {
   out
 }
 
+///|
 fn report_has_problem(report : AuditReport, code : String) -> Bool {
   let mut index = 0
   while index < report.checks.length() {
@@ -58,6 +62,7 @@ fn report_has_problem(report : AuditReport, code : String) -> Bool {
   false
 }
 
+///|
 fn string_array_contains(items : Array[String], value : String) -> Bool {
   let mut index = 0
   while index < items.length() {
@@ -69,6 +74,7 @@ fn string_array_contains(items : Array[String], value : String) -> Bool {
   false
 }
 
+///|
 fn code_list(items : Array[String]) -> String {
   if items.length() == 0 {
     return "- None\n"
@@ -81,4 +87,3 @@ fn code_list(items : Array[String]) -> String {
   }
   out
 }
-

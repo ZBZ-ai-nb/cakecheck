@@ -74,3 +74,38 @@ let diff_markdown = diff.to_markdown()
 ```
 
 修复计划会优先列出错误，再列出警告和提示。Diff 用于比较两次审计结果，适合在 CI 中展示一次修改带来的质量变化。
+
+## 增强分析器
+
+CakeCheck 还提供一组面向验收材料的增强分析器，用于生成比基础 `AuditReport` 更细的证据。
+
+```moonbit
+let readme = @audit.analyze_readme(readme_text)
+let workflow = @audit.analyze_workflow(ci_text)
+let license = @audit.analyze_license(license_text)
+let version = @audit.parse_semver("0.1.0")
+let namespace = @audit.analyze_namespace(
+  "ZBZ-ai-nb/cakecheck",
+  "https://github.com/ZBZ-ai-nb/cakecheck.git",
+)
+```
+
+- `ReadmeMetrics`：统计标题、代码块、命令、链接、列表项，并判断安装、用法、示例、验证、许可证、支持范围和暂不支持范围。
+- `WorkflowInfo`：识别 GitHub Actions 中的 MoonBit 安装、check、build、test、run、publish dry-run 和 target 覆盖。
+- `LicenseFacts`：识别 MIT、Apache-2.0、BSD、MPL 等常见许可证家族，并检查授权、免责声明和版权声明。
+- `SemVerInfo`：解析 semver core、pre-release 和 build metadata，支持版本比较和 bump 判断。
+- `NamespaceInfo`：解析 Mooncakes `owner/package` 命名空间，并检查与 GitHub 仓库 owner/repo 的一致性。
+
+## 验收辅助对象
+
+```moonbit
+let evidence = @audit.build_acceptance_evidence(input)
+let release = @audit.build_release_plan(input)
+let quality = @audit.build_quality_matrix(input)
+let acceptance = @audit.review_acceptance(input)
+```
+
+- `EvidenceMatrix`：将验收要求转换为可展示的证据表。
+- `ReleasePlan`：生成发布前检查、示例运行、dry-run 和正式发布命令，并列出阻塞项。
+- `QualityMatrix`：按 metadata、README、CI、license、repository、release、maintainability 加权评分。
+- `AcceptanceReview`：汇总审计、证据、质量和发布计划，给出 ready / nearly-ready / needs-work / blocked 判断。

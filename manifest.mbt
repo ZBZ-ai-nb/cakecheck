@@ -1,3 +1,4 @@
+///|
 pub fn parse_manifest(text : String) -> ManifestInfo {
   let fields : Array[ManifestField] = []
   let duplicates : Array[String] = []
@@ -29,6 +30,7 @@ pub fn parse_manifest(text : String) -> ManifestInfo {
   manifest_info(fields, duplicates, malformed)
 }
 
+///|
 pub fn ManifestInfo::get(self : ManifestInfo, key : String) -> String? {
   let mut index = 0
   while index < self.fields.length() {
@@ -40,6 +42,7 @@ pub fn ManifestInfo::get(self : ManifestInfo, key : String) -> String? {
   None
 }
 
+///|
 pub fn ManifestInfo::has(self : ManifestInfo, key : String) -> Bool {
   match self.get(key) {
     Some(_) => true
@@ -47,6 +50,7 @@ pub fn ManifestInfo::has(self : ManifestInfo, key : String) -> Bool {
   }
 }
 
+///|
 pub fn ManifestInfo::package_name(self : ManifestInfo) -> String {
   match self.get("name") {
     Some(value) => value
@@ -54,6 +58,7 @@ pub fn ManifestInfo::package_name(self : ManifestInfo) -> String {
   }
 }
 
+///|
 pub fn ManifestInfo::version(self : ManifestInfo) -> String {
   match self.get("version") {
     Some(value) => value
@@ -61,6 +66,7 @@ pub fn ManifestInfo::version(self : ManifestInfo) -> String {
   }
 }
 
+///|
 fn manifest_has_key(fields : Array[ManifestField], key : String) -> Bool {
   let mut index = 0
   while index < fields.length() {
@@ -72,6 +78,7 @@ fn manifest_has_key(fields : Array[ManifestField], key : String) -> Bool {
   false
 }
 
+///|
 fn array_contains(items : Array[String], value : String) -> Bool {
   let mut index = 0
   while index < items.length() {
@@ -83,18 +90,19 @@ fn array_contains(items : Array[String], value : String) -> Bool {
   false
 }
 
+///|
 fn valid_package_name(value : String) -> Bool {
   match index_of(value, "/") {
     None => false
-    Some(pos) => {
+    Some(pos) =>
       pos > 0 &&
       pos + 1 < value.length() &&
       valid_slug(slice(value, 0, pos)) &&
       valid_slug(slice(value, pos + 1, value.length()))
-    }
   }
 }
 
+///|
 fn valid_slug(value : String) -> Bool {
   if value.length() == 0 {
     return false
@@ -109,6 +117,7 @@ fn valid_slug(value : String) -> Bool {
   true
 }
 
+///|
 fn valid_semver(value : String) -> Bool {
   let parts = split_dot3(value)
   parts.length() == 3 &&
@@ -117,6 +126,7 @@ fn valid_semver(value : String) -> Bool {
   all_digits(parts[2])
 }
 
+///|
 fn split_dot3(value : String) -> Array[String] {
   let parts : Array[String] = []
   let mut start = 0
@@ -132,6 +142,7 @@ fn split_dot3(value : String) -> Array[String] {
   parts
 }
 
+///|
 fn all_digits(value : String) -> Bool {
   if value.length() == 0 {
     return false
@@ -145,4 +156,3 @@ fn all_digits(value : String) -> Bool {
   }
   true
 }
-

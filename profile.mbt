@@ -1,4 +1,8 @@
-pub fn AuditReport::gate(self : AuditReport, profile : AuditProfile) -> GateResult {
+///|
+pub fn AuditReport::gate(
+  self : AuditReport,
+  profile : AuditProfile,
+) -> GateResult {
   match profile {
     Quick => quick_gate(self)
     Release => release_gate(self)
@@ -6,7 +10,11 @@ pub fn AuditReport::gate(self : AuditReport, profile : AuditProfile) -> GateResu
   }
 }
 
-pub fn AuditReport::problem_count(self : AuditReport, category : Category) -> Int {
+///|
+pub fn AuditReport::problem_count(
+  self : AuditReport,
+  category : Category,
+) -> Int {
   let mut total = 0
   let mut index = 0
   while index < self.checks.length() {
@@ -19,11 +27,13 @@ pub fn AuditReport::problem_count(self : AuditReport, category : Category) -> In
   total
 }
 
+///|
 pub fn GateResult::summary(self : GateResult) -> String {
   let status = if self.passed { "passed" } else { "failed" }
   profile_name(self.profile) + ": " + status
 }
 
+///|
 pub fn AuditReport::pass_count(self : AuditReport, category : Category) -> Int {
   let mut total = 0
   let mut index = 0
@@ -37,14 +47,13 @@ pub fn AuditReport::pass_count(self : AuditReport, category : Category) -> Int {
   total
 }
 
+///|
 fn quick_gate(report : AuditReport) -> GateResult {
   let required : Array[String] = [
-    "moon-mod-has-name",
-    "moon-mod-has-version",
-    "moon-mod-has-license",
-    "manifest-license",
+    "moon-mod-has-name", "moon-mod-has-version", "moon-mod-has-license", "manifest-license",
   ]
-  let passed = report.score.error_count == 0 && report_has_pass_codes(report, required)
+  let passed = report.score.error_count == 0 &&
+    report_has_pass_codes(report, required)
   gate_result(
     Quick,
     passed,
@@ -57,20 +66,15 @@ fn quick_gate(report : AuditReport) -> GateResult {
   )
 }
 
+///|
 fn release_gate(report : AuditReport) -> GateResult {
   let required : Array[String] = [
-    "repository-url",
-    "readme-install",
-    "readme-usage",
-    "readme-example",
-    "ci-moon-check",
-    "ci-moon-build",
-    "ci-moon-test",
-    "license-recognized",
+    "repository-url", "readme-install", "readme-usage", "readme-example", "ci-moon-check",
+    "ci-moon-build", "ci-moon-test", "license-recognized",
   ]
   let passed = report.score.error_count == 0 &&
-               report.score.warning_count <= 2 &&
-               report_has_pass_codes(report, required)
+    report.score.warning_count <= 2 &&
+    report_has_pass_codes(report, required)
   gate_result(
     Release,
     passed,
@@ -83,33 +87,18 @@ fn release_gate(report : AuditReport) -> GateResult {
   )
 }
 
+///|
 fn hackathon_gate(report : AuditReport) -> GateResult {
   let required : Array[String] = [
-    "package-name-format",
-    "version-semver",
-    "repository-url",
-    "readme-install",
-    "readme-usage",
-    "readme-example",
-    "readme-check-command",
-    "readme-build-command",
-    "readme-test-command",
-    "readme-dry-run-command",
-    "ci-installs-moonbit",
-    "ci-moon-check",
-    "ci-moon-build",
-    "ci-moon-test",
-    "ci-moon-run",
-    "license-recognized",
-    "repo-public",
-    "commit-count",
-    "changelog-present",
-    "mooncakes-published",
-    "release-package-name",
+    "package-name-format", "version-semver", "repository-url", "readme-install",
+    "readme-usage", "readme-example", "readme-check-command", "readme-build-command",
+    "readme-test-command", "readme-dry-run-command", "ci-installs-moonbit", "ci-moon-check",
+    "ci-moon-build", "ci-moon-test", "ci-moon-run", "license-recognized", "repo-public",
+    "commit-count", "changelog-present", "mooncakes-published", "release-package-name",
   ]
   let passed = report.score.error_count == 0 &&
-               report.score.warning_count == 0 &&
-               report_has_pass_codes(report, required)
+    report.score.warning_count == 0 &&
+    report_has_pass_codes(report, required)
   gate_result(
     Hackathon,
     passed,
@@ -122,6 +111,7 @@ fn hackathon_gate(report : AuditReport) -> GateResult {
   )
 }
 
+///|
 fn report_has_pass_codes(report : AuditReport, codes : Array[String]) -> Bool {
   let mut index = 0
   while index < codes.length() {
@@ -133,6 +123,7 @@ fn report_has_pass_codes(report : AuditReport, codes : Array[String]) -> Bool {
   true
 }
 
+///|
 fn report_has_pass_code(report : AuditReport, code : String) -> Bool {
   let mut index = 0
   while index < report.checks.length() {
@@ -145,6 +136,7 @@ fn report_has_pass_code(report : AuditReport, code : String) -> Bool {
   false
 }
 
+///|
 fn profile_name(profile : AuditProfile) -> String {
   match profile {
     Quick => "quick"
