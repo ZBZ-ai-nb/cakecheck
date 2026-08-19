@@ -127,6 +127,17 @@ moon publish --dry-run
 5,462 total .mbt lines
 ```
 
+## 项目资料
+
+- `HACKATHON_APPLICATION.md`：8 月黑客松一页 Markdown 项目申报书。
+- `TASK_REPORT.md`：项目任务报告书。
+- `docs/API.md`：公开 API 说明。
+- `docs/DESIGN.md`：架构和设计说明。
+- `docs/TESTING.md`：测试记录和本地验证命令。
+- `docs/ACCEPTANCE_SELF_REVIEW.md`：验收自查证据。
+- `docs/PUSH_RELEASE_CHECKLIST.md`：推送和 Mooncakes 发布清单。
+- `docs/DEVELOPMENT_RECORD.md`：开发过程、工单和设计决策记录。
+
 ## Mooncakes 发布
 
 `moon.mod` 发布字段：

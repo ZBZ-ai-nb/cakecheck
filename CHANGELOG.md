@@ -12,4 +12,5 @@
 - Added Mooncakes namespace analysis and GitHub repository alignment checks.
 - Added acceptance evidence matrix, release plan generator, quality matrix and final acceptance review model.
 - Expanded MoonBit source to more than 4,000 effective lines with runnable feature code and tests.
+- Added local acceptance self-review, push/release checklist and development record for review evidence.
 - Added examples, tests, CI workflow, README and design docs.

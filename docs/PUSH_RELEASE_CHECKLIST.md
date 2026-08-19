@@ -1,0 +1,100 @@
+# Push And Release Checklist
+
+Use this checklist when the correct GitHub Desktop account is ready. Nothing in this file requires changing accounts.
+
+## Do Not Mix Accounts
+
+- Do not push while GitHub Desktop is logged in to an unrelated account.
+- Do not run `git push` from a terminal if you are unsure which credential helper account will be used.
+- Do not edit global Git credential settings just to finish this project.
+- Keep the repository remote as `https://github.com/ZBZ-ai-nb/cakecheck.git`.
+
+## Before Push
+
+Local repository path:
+
+```text
+C:\Users\11619\Documents\Codex\2026-08-09\moonbit-readme-ci-mooncakes-io-git-8\outputs\mooncake_audit
+```
+
+Expected remote:
+
+```text
+origin https://github.com/ZBZ-ai-nb/cakecheck.git
+```
+
+Expected local state:
+
+```text
+main...origin/main [ahead 2]
+```
+
+Expected latest local commit:
+
+```text
+bcf588e feat: expand acceptance audit analyzers
+```
+
+## GitHub Desktop Push Steps
+
+1. Open GitHub Desktop.
+2. Confirm the signed-in account is the intended owner or has write access to `ZBZ-ai-nb/cakecheck`.
+3. Select repository `cakecheck`.
+4. Confirm current branch is `main`.
+5. Confirm it says the branch is ahead of origin.
+6. Click `Push origin`.
+7. Open the repository page and confirm the latest commit is `bcf588e` or newer.
+8. Check the `Actions` tab and wait for CI to finish.
+
+## Submission Link
+
+Use this GitHub repository link for the August Hackathon form:
+
+```text
+https://github.com/ZBZ-ai-nb/cakecheck
+```
+
+Use this application report file as the one-page Markdown project proposal:
+
+```text
+HACKATHON_APPLICATION.md
+```
+
+## Mooncakes Release Steps
+
+Run these only after confirming the correct Mooncakes account/owner:
+
+```bash
+moon login
+moon publish --dry-run
+moon publish
+```
+
+Expected package name:
+
+```text
+ZBZ-ai-nb/cakecheck
+```
+
+Expected version:
+
+```text
+0.1.0
+```
+
+After publishing, record the package page in the submission notes:
+
+```text
+https://mooncakes.io/docs/ZBZ-ai-nb/cakecheck
+```
+
+## Final Acceptance Checks
+
+- GitHub repository is public.
+- Latest local commits are visible on GitHub default branch `main`.
+- GitHub Actions CI passes on the latest commit.
+- `README.md` renders correctly on GitHub.
+- `LICENSE` is visible at repository root.
+- `HACKATHON_APPLICATION.md` is visible and concise enough for submission.
+- `docs/ACCEPTANCE_SELF_REVIEW.md` records local validation evidence.
+- Mooncakes package is published and accessible.
