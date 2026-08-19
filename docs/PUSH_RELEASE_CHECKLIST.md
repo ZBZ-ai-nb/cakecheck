@@ -26,12 +26,13 @@ origin https://github.com/ZBZ-ai-nb/cakecheck.git
 Expected local state:
 
 ```text
-main...origin/main [ahead 2]
+main...origin/main [ahead N]
 ```
 
-Expected latest local commit:
+The exact `ahead` number may increase as local checklist/documentation commits are added. Before pushing, confirm these important commits are included in local `main`:
 
 ```text
+b598656 docs: add acceptance self review checklist
 bcf588e feat: expand acceptance audit analyzers
 ```
 
@@ -43,7 +44,7 @@ bcf588e feat: expand acceptance audit analyzers
 4. Confirm current branch is `main`.
 5. Confirm it says the branch is ahead of origin.
 6. Click `Push origin`.
-7. Open the repository page and confirm the latest commit is `bcf588e` or newer.
+7. Open the repository page and confirm the latest local `main` commit is visible and commit `bcf588e` is included.
 8. Check the `Actions` tab and wait for CI to finish.
 
 ## Submission Link
@@ -86,6 +87,12 @@ After publishing, record the package page in the submission notes:
 
 ```text
 https://mooncakes.io/docs/ZBZ-ai-nb/cakecheck
+```
+
+Public manifest check on 2026-08-20 returned `404 Not Found`, which is expected before successful publication:
+
+```text
+https://mooncakes.io/api/v0/manifest/ZBZ-ai-nb/cakecheck
 ```
 
 ## Final Acceptance Checks

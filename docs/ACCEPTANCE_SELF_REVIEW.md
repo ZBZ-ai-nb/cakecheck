@@ -73,23 +73,25 @@ Remote default branch, checked read-only:
 origin/HEAD -> refs/heads/main
 ```
 
-Local commit count:
+Local commit count before the acceptance checklist commit:
 
 ```text
 10 commits since 2026-07-13
 ```
 
-Latest local commits:
+Important local commits to preserve:
 
 ```text
+b598656 docs: add acceptance self review checklist
 bcf588e feat: expand acceptance audit analyzers
 7248c6d docs: update application release status after GitHub publish
 a87d70f chore: set GitHub and Mooncakes owner to ZBZ-ai-nb
 473fe58 docs: add task report with participant information
-7ab5927 docs: add README application docs testing notes and CI
 ```
 
-Important note: the public GitHub remote was checked read-only and currently points to `a87d70f`; local `main` is ahead. The latest local work must be pushed before the submitted GitHub URL shows the 4k+ code.
+Important note: the public GitHub remote was checked read-only and local `main` is ahead of the remote. The latest local work must be pushed before the submitted GitHub URL shows the 4k+ code.
+
+Mooncakes public manifest check on 2026-08-20 returned `404 Not Found`, so the package still needs to be published after the correct Mooncakes account is confirmed.
 
 ## Feature Boundary
 
@@ -114,7 +116,7 @@ Implemented capability groups:
 These steps should be performed only after the correct GitHub Desktop account is confirmed:
 
 1. Push local `main` to `https://github.com/ZBZ-ai-nb/cakecheck`.
-2. Confirm the GitHub page shows commit `bcf588e` or a later commit.
+2. Confirm the GitHub page shows the latest local `main` commit and includes `bcf588e`.
 3. Confirm GitHub Actions runs on the pushed commit.
 4. Log in to Mooncakes with the correct owner account.
 5. Run `moon publish --dry-run`.
