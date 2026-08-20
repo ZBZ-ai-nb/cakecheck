@@ -488,4 +488,3 @@ pub fn WorkflowInfo::to_markdown(Self) -> String
 // Type aliases
 
 // Traits
-
