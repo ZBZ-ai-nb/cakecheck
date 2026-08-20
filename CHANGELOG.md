@@ -16,4 +16,6 @@
 - Added `moon info` generated API snapshot files for interface review.
 - Added contribution guide, security policy and open source compliance record.
 - Strengthened CI with formatting, deny-warn checks, strict tests and API snapshot verification.
+- Fixed SemVer metadata handling, Mooncakes documentation URLs and version-aware release tags.
+- Added public API snapshot compatibility analysis with SemVer bump recommendations.
 - Added examples, tests, CI workflow, README and design docs.

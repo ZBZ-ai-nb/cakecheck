@@ -12,6 +12,8 @@ pub fn acceptance_reviews_table(Array[AcceptanceReview]) -> String
 
 pub fn all_match(String, Array[String]) -> Bool
 
+pub fn analyze_api_compatibility(String, String) -> ApiCompatibility
+
 pub fn analyze_license(String) -> LicenseFacts
 
 pub fn analyze_namespace(String, String) -> NamespaceInfo
@@ -21,6 +23,8 @@ pub fn analyze_readme(String) -> ReadmeMetrics
 pub fn analyze_workflow(String) -> WorkflowInfo
 
 pub fn any_match(String, Array[String]) -> Bool
+
+pub fn api_snapshot_declarations(String) -> Array[String]
 
 pub fn audit_project(AuditInput) -> AuditReport
 
@@ -164,6 +168,18 @@ pub fn AcceptanceReview::next_actions(Self) -> Array[String]
 pub fn AcceptanceReview::positive_signals(Self) -> Array[String]
 pub fn AcceptanceReview::summary(Self) -> String
 pub fn AcceptanceReview::to_markdown(Self) -> String
+
+pub(all) struct ApiCompatibility {
+  before_count : Int
+  after_count : Int
+  added : Array[String]
+  removed : Array[String]
+  required_bump : VersionBump
+} derive(Eq, @debug.Debug)
+pub fn ApiCompatibility::has_changes(Self) -> Bool
+pub fn ApiCompatibility::is_compatible(Self) -> Bool
+pub fn ApiCompatibility::summary(Self) -> String
+pub fn ApiCompatibility::to_markdown(Self) -> String
 
 pub(all) struct AuditCheck {
   category : Category

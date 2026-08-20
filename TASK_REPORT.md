@@ -27,6 +27,7 @@ CakeCheck 面向 MoonBit 开源包发布和验收场景，解决包作者在发�
 - 提供修复建议计划和两次审计结果 diff；
 - 提供 README 结构分析、CI workflow 覆盖分析、许可证事实识别、semver 解析比较和 Mooncakes 命名空间一致性检查；
 - 提供 Acceptance Evidence 证据矩阵、Release Plan 发布计划、Quality Matrix 加权质量评分和 Acceptance Review 最终验收判断；
+- 比较 `pkg.generated.mbti` 公共 API 快照，识别新增/删除声明并给出 SemVer major/minor 版本建议；
 - 提供可运行示例、CLI smoke 入口和完整单元测试。
 
 ## 工程实现
@@ -47,13 +48,14 @@ CakeCheck 面向 MoonBit 开源包发布和验收场景，解决包作者在发�
 - `license_analyzer.mbt`：常见 OSI 许可证家族、授权、免责声明和发布可用性分析；
 - `semver_analyzer.mbt`：semver prerelease/build metadata 解析、版本比较和 bump 建议；
 - `namespace_analyzer.mbt`：Mooncakes owner/package 命名空间与 GitHub 仓库一致性检查；
+- `api_compatibility.mbt`：比较公共 API 快照并判断兼容性和版本升级意图；
 - `evidence_matrix.mbt`：将验收要求转化为可展示、可导出的证据矩阵；
 - `release_plan_analyzer.mbt`：生成 Mooncakes 发布命令、验证步骤和阻塞项；
 - `quality_matrix.mbt`：从 metadata、README、CI、license、repository、release、maintainability 维度计算质量分；
 - `acceptance_review.mbt`：汇总审计报告、证据矩阵、质量矩阵和发布计划，输出最终验收判断；
 - `fixtures.mbt` / `tests.mbt`：测试 fixture 和核心功能测试。
 
-当前 MoonBit 源码规模为 4,776 行非空、非注释 MoonBit 代码，`.mbt` 物理总行数为 5,462 行，达到 8 月黑客松 4,000 行以上参考规模。新增代码均对应实际功能、测试和文档，不通过空文件或无意义拆分凑行数。
+当前 MoonBit 源码规模为 4,929 行非空、非注释 MoonBit 代码，`.mbt` 物理总行数为 5,638 行，达到 8 月黑客松 4,000 行以上参考规模。新增代码均对应实际功能、测试和文档，不通过空文件或无意义拆分凑行数。
 
 ## 测试与验证
 
@@ -73,7 +75,7 @@ moon run cmd/main
 测试结果：
 
 ```text
-Total tests: 17, passed: 17, failed: 0.
+Total tests: 20, passed: 20, failed: 0.
 ```
 
 测试覆盖正常项目、风险项目、`moon.mod` 解析、README 覆盖项、中英文小节识别、CI 命令覆盖、评分统计、Markdown/JSON 导出、门禁 profile、修复计划、审计 diff、semver、命名空间、README/CI/license 增强分析、证据矩阵、发布计划、质量矩阵和验收评审。
@@ -109,9 +111,8 @@ moon publish
 
 ## 后续计划
 
-- 替换 GitHub 与 Mooncakes 账号信息；
-- 推送公开 GitHub 仓库；
-- 执行 `moon publish --dry-run` 并完成正式发布；
+- 确认正确的 GitHub Desktop 账号后推送公开仓库，并核对默认分支和 Actions 结果；
+- 确认 Mooncakes owner 账号后执行 `moon publish --dry-run` 并完成正式发布；
 - 增加真实文件读取适配器；
 - 增加 SPDX 许可证识别表；
 - 增加 Mooncakes API 结果导入；

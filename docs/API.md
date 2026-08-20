@@ -88,6 +88,9 @@ let namespace = @audit.analyze_namespace(
   "ZBZ-ai-nb/cakecheck",
   "https://github.com/ZBZ-ai-nb/cakecheck.git",
 )
+let before_mbti = "pub fn parse(String) -> String\n"
+let after_mbti = before_mbti + "pub fn report(String) -> String\n"
+let api_change = @audit.analyze_api_compatibility(before_mbti, after_mbti)
 ```
 
 - `ReadmeMetrics`：统计标题、代码块、命令、链接、列表项，并判断安装、用法、示例、验证、许可证、支持范围和暂不支持范围。
@@ -95,6 +98,9 @@ let namespace = @audit.analyze_namespace(
 - `LicenseFacts`：识别 MIT、Apache-2.0、BSD、MPL 等常见许可证家族，并检查授权、免责声明和版权声明。
 - `SemVerInfo`：解析 semver core、pre-release 和 build metadata，支持版本比较和 bump 判断。
 - `NamespaceInfo`：解析 Mooncakes `owner/package` 命名空间，并检查与 GitHub 仓库 owner/repo 的一致性。
+- `ApiCompatibility`：比较两个 `pkg.generated.mbti` 快照，列出新增/删除的公开声明，判断兼容性并给出 SemVer bump 建议。
+
+`analyze_api_compatibility` 只处理快照文本，不读取磁盘、不执行代码。删除或签名变化会被视为 breaking change，需要 major；仅新增公开声明建议 minor；无变化则保持当前版本。
 
 ## 验收辅助对象
 

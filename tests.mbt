@@ -148,6 +148,21 @@ test "semver analyzer parses prerelease metadata and bump intent" {
 }
 
 ///|
+test "manifest audit accepts complete semantic versions" {
+  let report = audit_project(
+    audit_input(
+      "name = \"acme/cakecheck\"\nversion = \"1.2.3-alpha.1+build.5\"\nreadme = \"README.md\"\nrepository = \"https://github.com/acme/cakecheck.git\"\nlicense = \"MIT\"\ndescription = \"MoonBit package readiness auditor\"\npreferred_target = \"wasm\"\n",
+      "# CakeCheck\n\n## Installation\nmoon add acme/cakecheck@1.2.3-alpha.1\n\n## Usage\nRun audit.\n\n## Example\nmoon run examples/basic\n\n## Validation\nmoon check\nmoon build\nmoon test\nmoon publish --dry-run\n\n## License\nMIT\n\nacme/cakecheck\n",
+      "name: CI\nsteps:\n  - run: curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash\n  - run: moon check\n  - run: moon build\n  - run: moon test\n  - run: moon run examples/basic\n",
+      "MIT License\n\nPermission is hereby granted to any person obtaining a copy\n",
+      "# Changelog\n\n## 1.2.3\n", true, 8, true,
+    ),
+  )
+  assert_false(report.has_errors())
+  assert_eq(report.version, "1.2.3-alpha.1+build.5")
+}
+
+///|
 test "namespace analyzer aligns Mooncakes name with GitHub repository" {
   let info = analyze_namespace(
     "ZBZ-ai-nb/cakecheck", "https://github.com/ZBZ-ai-nb/cakecheck.git",
@@ -168,6 +183,37 @@ test "namespace analyzer aligns Mooncakes name with GitHub repository" {
     "ZBZ-ai-nb/cakecheck",
   )
   assert_true(contains(namespace_alignment_table([info]), "cakecheck"))
+}
+
+///|
+test "release plan uses the manifest version and current Mooncakes URL" {
+  let plan = build_release_plan(sample_acceptance_input())
+  assert_true(release_plan_has_command(plan, "git tag v0.1.0"))
+  assert_false(release_plan_has_command(plan, "git tag vZBZ-ai-nb/cakecheck"))
+  let package_namespace = analyze_namespace(
+    "ZBZ-ai-nb/cakecheck", "https://github.com/ZBZ-ai-nb/cakecheck.git",
+  )
+  assert_eq(
+    package_namespace.mooncakes_url(),
+    "https://mooncakes.io/docs/ZBZ-ai-nb/cakecheck",
+  )
+}
+
+///|
+test "API compatibility detects breaking changes and release intent" {
+  let before = "pub fn parse(String) -> String\npub(all) struct Config {\nvalue : String\n}\n"
+  let after = "pub fn parse(String) -> String\npub fn report(String) -> String\npub(all) struct Config {\nvalue : Int\n}\n"
+  let breaking = analyze_api_compatibility(before, after)
+  assert_false(breaking.is_compatible())
+  assert_true(breaking.has_changes())
+  assert_eq(breaking.added.length(), 2)
+  assert_eq(breaking.removed.length(), 1)
+  assert_eq(breaking.required_bump, Major)
+  assert_true(contains(breaking.to_markdown(), "API Compatibility"))
+  let stable = analyze_api_compatibility(before, before)
+  assert_true(stable.is_compatible())
+  assert_eq(stable.required_bump, SameVersion)
+  assert_eq(api_snapshot_declarations(after).length(), 3)
 }
 
 ///|

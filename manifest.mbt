@@ -119,40 +119,5 @@ fn valid_slug(value : String) -> Bool {
 
 ///|
 fn valid_semver(value : String) -> Bool {
-  let parts = split_dot3(value)
-  parts.length() == 3 &&
-  all_digits(parts[0]) &&
-  all_digits(parts[1]) &&
-  all_digits(parts[2])
-}
-
-///|
-fn split_dot3(value : String) -> Array[String] {
-  let parts : Array[String] = []
-  let mut start = 0
-  let mut index = 0
-  while index < value.length() {
-    if code_at(value, index) == 46 {
-      parts.push(slice(value, start, index))
-      start = index + 1
-    }
-    index += 1
-  }
-  parts.push(slice(value, start, value.length()))
-  parts
-}
-
-///|
-fn all_digits(value : String) -> Bool {
-  if value.length() == 0 {
-    return false
-  }
-  let mut index = 0
-  while index < value.length() {
-    if !is_digit(code_at(value, index)) {
-      return false
-    }
-    index += 1
-  }
-  true
+  parse_semver(value).valid
 }

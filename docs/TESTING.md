@@ -27,7 +27,7 @@ git diff --exit-code -- pkg.generated.mbti cmd/main/pkg.generated.mbti examples/
 测试结果：
 
 ```text
-Total tests: 17, passed: 17, failed: 0.
+Total tests: 20, passed: 20, failed: 0.
 ```
 
 测试覆盖：
@@ -50,15 +50,16 @@ Total tests: 17, passed: 17, failed: 0.
 - Release Plan 发布命令和阻塞项；
 - Quality Matrix 加权质量评分；
 - Acceptance Review 最终验收判断。
+- 公共 API 快照新增/删除声明和 SemVer bump 建议。
 
 有效 MoonBit 源码规模：
 
 ```text
-4,776 non-empty non-comment MoonBit code lines
-5,462 total .mbt lines
+4,929 non-empty non-comment MoonBit code lines
+5,638 total .mbt lines
 ```
 
-正式发布前请替换 `moon.mod` 中的 owner 与 repository，并执行：
+当前 `moon.mod` 已配置目标 owner、GitHub repository 和 `0.1.0` 版本。正式发布前请确认登录的是对应 Mooncakes owner，再执行：
 
 ```bash
 moon login

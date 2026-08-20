@@ -94,7 +94,7 @@ fn audit_manifest(checks : Array[AuditCheck], manifest : ManifestInfo) -> Unit {
             Manifest,
             Pass,
             "version-semver",
-            "version uses x.y.z semver shape",
+            "version uses SemVer 2.0.0 shape",
             "",
           ),
         )
@@ -104,8 +104,8 @@ fn audit_manifest(checks : Array[AuditCheck], manifest : ManifestInfo) -> Unit {
             Manifest,
             Error,
             "version-semver",
-            "version is not in x.y.z semver shape",
-            "Use a release version such as 0.1.0.",
+            "version is not valid SemVer 2.0.0",
+            "Use a release version such as 0.1.0 or 1.2.3-beta.1.",
           ),
         )
       }

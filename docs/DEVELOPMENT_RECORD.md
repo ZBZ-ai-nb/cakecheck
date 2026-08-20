@@ -16,6 +16,7 @@ This file keeps a lightweight local work record for reviewers. It complements gi
 | 2026-08-19 | Expand effective MoonBit code beyond 4k | Done | analyzer modules, test expansion |
 | 2026-08-20 | Add acceptance self-review and push/release checklist | Done | `docs/ACCEPTANCE_SELF_REVIEW.md`, `docs/PUSH_RELEASE_CHECKLIST.md` |
 | 2026-08-20 | Add contribution, security and open source compliance records | Done | `CONTRIBUTING.md`, `SECURITY.md`, `docs/OPEN_SOURCE_COMPLIANCE.md` |
+| 2026-08-20 | Add API snapshot compatibility and topic differentiation record | Done | `api_compatibility.mbt`, `docs/DIFFERENTIATION.md` |
 
 ## Design Decisions
 
@@ -27,6 +28,7 @@ This file keeps a lightweight local work record for reviewers. It complements gi
 | Add profile gates | Separates quick metadata checks from release and hackathon acceptance checks |
 | Add evidence and quality matrices | Makes acceptance status explainable and easier to review |
 | Keep publishing manual | Avoids mixing local audit logic with account credentials and external side effects |
+| Compare generated API snapshots | Connects public API changes to SemVer release intent without reading files or using network access |
 
 ## Validation Record
 
@@ -37,8 +39,8 @@ moon fmt --check: pass
 moon check: pass
 moon check --deny-warn: pass
 moon build: pass
-moon test: 17 passed, 0 failed
-moon test --deny-warn: 17 passed, 0 failed
+moon test: 20 passed, 0 failed
+moon test --deny-warn: 20 passed, 0 failed
 moon run examples/basic: pass
 moon run cmd/main: pass
 moon info: pass

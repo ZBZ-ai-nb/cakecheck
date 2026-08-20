@@ -13,7 +13,7 @@ pub fn build_release_plan(input : AuditInput) -> ReleasePlan {
   release_plan(
     report.package_name,
     report.version,
-    release_default_steps(report.package_name),
+    release_default_steps(report.version),
     blockers,
   )
 }
@@ -35,7 +35,7 @@ pub fn release_plan_from_report(
   release_plan(
     report.package_name,
     report.version,
-    release_default_steps(report.package_name),
+    release_default_steps(report.version),
     blockers,
   )
 }
@@ -232,7 +232,7 @@ pub fn release_plan_has_command(plan : ReleasePlan, command : String) -> Bool {
 }
 
 ///|
-fn release_default_steps(package_name : String) -> Array[ReleaseStep] {
+fn release_default_steps(version : String) -> Array[ReleaseStep] {
   let steps : Array[ReleaseStep] = []
   steps.push(
     release_step(
@@ -263,9 +263,9 @@ fn release_default_steps(package_name : String) -> Array[ReleaseStep] {
   steps.push(
     release_step(
       7,
-      "git tag v" + package_name + "-0.1.0",
+      "git tag v" + version,
       false,
-      "optional release tag, adjust to actual version",
+      "optional release tag for the published version",
     ),
   )
   steps.push(

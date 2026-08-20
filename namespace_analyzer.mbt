@@ -31,7 +31,7 @@ pub fn NamespaceInfo::canonical_name(self : NamespaceInfo) -> String {
 ///|
 pub fn NamespaceInfo::mooncakes_url(self : NamespaceInfo) -> String {
   if self.valid {
-    "https://mooncakes.io/docs/#/Z/" + self.owner + "/" + self.package_name
+    "https://mooncakes.io/docs/" + self.owner + "/" + self.package_name
   } else {
     "https://mooncakes.io/"
   }

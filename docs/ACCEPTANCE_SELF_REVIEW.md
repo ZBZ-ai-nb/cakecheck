@@ -26,12 +26,12 @@ Two acceptance items still require account-side action:
 | --- | --- | --- |
 | MoonBit project | Pass | `moon.mod`, `moon.pkg`, `moon check` |
 | Primary language | Pass | `.mbt` source files implement the core audit logic |
-| Effective scale | Pass | 4,776 non-empty non-comment MoonBit lines |
-| Total MoonBit lines | Pass | 5,462 total `.mbt` lines |
+| Effective scale | Pass | 4,929 non-empty non-comment MoonBit lines |
+| Total MoonBit lines | Pass | 5,638 total `.mbt` lines |
 | README | Pass | `README.md` explains purpose, install, usage, example, validation, release |
 | Runnable example | Pass | `moon run examples/basic` |
 | CLI smoke entry | Pass | `moon run cmd/main` |
-| Tests | Pass | `Total tests: 17, passed: 17, failed: 0.` |
+| Tests | Pass | `Total tests: 20, passed: 20, failed: 0.` |
 | Build | Pass | `moon build` |
 | Strict warning check | Pass | `moon check --deny-warn` |
 | Formatting | Pass | `moon fmt --check` |
@@ -42,6 +42,7 @@ Two acceptance items still require account-side action:
 | Changelog | Pass | `CHANGELOG.md` |
 | Design notes | Pass | `docs/DESIGN.md` |
 | API notes | Pass | `docs/API.md` |
+| Topic differentiation | Pass | `docs/DIFFERENTIATION.md` records adjacent-project research and scope boundaries |
 | Test record | Pass | `docs/TESTING.md` |
 | Application report | Pass | `HACKATHON_APPLICATION.md` |
 | Task report | Pass | `TASK_REPORT.md` |
@@ -77,10 +78,10 @@ Remote default branch, checked read-only:
 origin/HEAD -> refs/heads/main
 ```
 
-Local commit count before the acceptance checklist commit:
+Local commit count since 2026-07-13:
 
 ```text
-10 commits since 2026-07-13
+14 meaningful commits since 2026-07-13
 ```
 
 Important local commits to preserve:

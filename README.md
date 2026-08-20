@@ -71,6 +71,8 @@ pub fn analyze_workflow(text : String) -> WorkflowInfo
 pub fn analyze_license(text : String) -> LicenseFacts
 pub fn parse_semver(value : String) -> SemVerInfo
 pub fn analyze_namespace(raw : String, repository : String) -> NamespaceInfo
+pub fn analyze_api_compatibility(before : String, after : String) -> ApiCompatibility
+pub fn api_snapshot_declarations(snapshot : String) -> Array[String]
 pub fn build_acceptance_evidence(input : AuditInput) -> EvidenceMatrix
 pub fn build_release_plan(input : AuditInput) -> ReleasePlan
 pub fn build_quality_matrix(input : AuditInput) -> QualityMatrix
@@ -88,6 +90,7 @@ pub fn review_acceptance(input : AuditInput) -> AcceptanceReview
 - 不同 profile 下的发布门禁结果。
 - README 结构指标、CI 命令覆盖、许可证事实、semver 版本比较和包命名空间一致性。
 - 验收证据矩阵、Mooncakes 发布计划、质量矩阵和最终验收评审摘要。
+- 公共 API 快照兼容性分析，识别新增/删除声明并给出 SemVer bump 建议。
 
 ## 支持范围
 
@@ -99,6 +102,7 @@ pub fn review_acceptance(input : AuditInput) -> AcceptanceReview
 - 支持比较两次审计结果，展示 ready 分数变化、已修复项和新增问题。
 - 支持生成 Acceptance Evidence、Release Plan、Quality Matrix 和 Acceptance Review。
 - 不依赖第三方库，不读取外部文件，不访问网络。
+- 不提取 README 代码块或建立第三方来源证明，专注于 Mooncakes 发布契约和 API 版本兼容性。
 
 ## 暂不支持范围
 
@@ -122,13 +126,13 @@ moon info
 moon publish --dry-run
 ```
 
-测试覆盖正常项目、风险项目、moon.mod 解析、中英文 README 覆盖项、CI 命令、评分、Markdown 与 JSON 导出、profile 门禁、修复计划、审计 diff、semver、命名空间、证据矩阵、发布计划、质量矩阵和验收评审。
+测试覆盖正常项目、风险项目、moon.mod 解析、中英文 README 覆盖项、CI 命令、评分、Markdown 与 JSON 导出、profile 门禁、修复计划、审计 diff、semver、命名空间、API 快照兼容性、证据矩阵、发布计划、质量矩阵和验收评审。
 
 当前 MoonBit 源码规模：
 
 ```text
-4,776 non-empty non-comment MoonBit code lines
-5,462 total .mbt lines
+4,929 non-empty non-comment MoonBit code lines
+5,638 total .mbt lines
 ```
 
 ## 项目资料
@@ -137,6 +141,7 @@ moon publish --dry-run
 - `TASK_REPORT.md`：项目任务报告书。
 - `docs/API.md`：公开 API 说明。
 - `docs/DESIGN.md`：架构和设计说明。
+- `docs/DIFFERENTIATION.md`：相邻项目调研和选题差异化边界。
 - `docs/TESTING.md`：测试记录和本地验证命令。
 - `docs/ACCEPTANCE_SELF_REVIEW.md`：验收自查证据。
 - `docs/PUSH_RELEASE_CHECKLIST.md`：推送和 Mooncakes 发布清单。

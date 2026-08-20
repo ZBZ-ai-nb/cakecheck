@@ -26,15 +26,16 @@ CakeCheck 用 MoonBit 实现一个面向 Mooncakes 包发布前自检的审计�
 - 检查 LICENSE、CHANGELOG、仓库公开状态、提交数量和 Mooncakes 发布状态；
 - 提供 Quick、Release、Hackathon 三种门禁 profile、修复建议计划和两次审计 diff；
 - 提供 README 结构指标、CI workflow 指标、许可证事实、semver 解析、包命名空间一致性和最终验收评审；
+- 比较 `pkg.generated.mbti` 公共 API 快照，识别兼容性变化并给出 major/minor 版本建议；
 - 提供 Markdown/JSON 导出、示例、测试、README、CI 和 Mooncakes 发布配置。
 
 ## 项目现有基础与本次计划
 
-当前项目已包含 MoonBit 工程配置、4,776 行非空非注释 MoonBit 源码、测试、示例、README、MIT 许可证、GitHub Actions CI、API 文档、设计说明、测试记录和 Mooncakes 发布字段。GitHub 公开仓库已完成，参赛者还需要登录 Mooncakes，运行验收命令并发布到 mooncakes.io。
+当前项目已包含 MoonBit 工程配置、4,929 行非空非注释 MoonBit 源码、测试、示例、README、MIT 许可证、GitHub Actions CI、API 文档、设计说明、测试记录和 Mooncakes 发布字段。GitHub 公开仓库已创建，最新本地提交将在确认账号后推送；随后还需要登录 Mooncakes，运行验收命令并发布到 mooncakes.io。
 
 ## 新颖性与差异化
 
-CakeCheck 聚焦 MoonBit/Mooncakes 包验收质量门禁这一具体生态问题，不是常规算法题、简单示例、通用脚手架或对其他语言项目的重复移植。项目把黑客松验收中分散的工程要求建模为可运行的 MoonBit API，使 README、CI、许可证、命名空间、版本、发布计划和验收证据都能被程序化检查，适合后续扩展为 CI 插件、Web 自查工具或批量包质量仪表盘。
+CakeCheck 聚焦 MoonBit/Mooncakes 包的发布契约与版本质量门禁，不是常规算法题、简单示例、通用脚手架或对其他语言项目的重复移植。项目把 `moon.mod`、CI 命令覆盖、许可证事实、命名空间、SemVer、公共 API 快照和发布计划建模为可运行的 MoonBit API。它不提取 README 代码块、不建立第三方来源证明、不执行申报身份认证，也不替代真实的 GitHub/Mooncakes 账户操作，和相邻的文档/来源证明工具保持清晰边界。
 
 ## 原创或参考说明
 
