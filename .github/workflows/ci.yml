@@ -4,9 +4,13 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   moonbit:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -19,8 +23,14 @@ jobs:
           export PATH="$HOME/.moon/bin:$PATH"
           moon version --all
 
+      - name: Format
+        run: moon fmt --check
+
       - name: Check
         run: moon check
+
+      - name: Strict check
+        run: moon check --deny-warn
 
       - name: Build
         run: moon build
@@ -28,9 +38,16 @@ jobs:
       - name: Test
         run: moon test
 
+      - name: Strict test
+        run: moon test --deny-warn
+
       - name: Run example
         run: moon run examples/basic
 
       - name: Run CLI smoke
         run: moon run cmd/main
 
+      - name: API snapshot
+        run: |
+          moon info
+          git diff --exit-code -- pkg.generated.mbti cmd/main/pkg.generated.mbti examples/basic/pkg.generated.mbti

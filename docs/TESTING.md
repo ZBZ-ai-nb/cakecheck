@@ -21,6 +21,7 @@ moon test --deny-warn
 moon run examples/basic
 moon run cmd/main
 moon info
+git diff --exit-code -- pkg.generated.mbti cmd/main/pkg.generated.mbti examples/basic/pkg.generated.mbti
 ```
 
 测试结果：

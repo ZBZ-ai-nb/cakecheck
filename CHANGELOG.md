@@ -14,4 +14,6 @@
 - Expanded MoonBit source to more than 4,000 effective lines with runnable feature code and tests.
 - Added local acceptance self-review, push/release checklist and development record for review evidence.
 - Added `moon info` generated API snapshot files for interface review.
+- Added contribution guide, security policy and open source compliance record.
+- Strengthened CI with formatting, deny-warn checks, strict tests and API snapshot verification.
 - Added examples, tests, CI workflow, README and design docs.

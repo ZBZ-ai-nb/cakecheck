@@ -104,4 +104,5 @@ https://mooncakes.io/api/v0/manifest/ZBZ-ai-nb/cakecheck
 - `LICENSE` is visible at repository root.
 - `HACKATHON_APPLICATION.md` is visible and concise enough for submission.
 - `docs/ACCEPTANCE_SELF_REVIEW.md` records local validation evidence.
+- `docs/OPEN_SOURCE_COMPLIANCE.md` records license and provenance evidence.
 - Mooncakes package is published and accessible.

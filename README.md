@@ -110,9 +110,12 @@ pub fn review_acceptance(input : AuditInput) -> AcceptanceReview
 ## 本地运行与验收命令
 
 ```bash
+moon fmt --check
 moon check
+moon check --deny-warn
 moon build
 moon test
+moon test --deny-warn
 moon run examples/basic
 moon run cmd/main
 moon info
@@ -138,6 +141,9 @@ moon publish --dry-run
 - `docs/ACCEPTANCE_SELF_REVIEW.md`：验收自查证据。
 - `docs/PUSH_RELEASE_CHECKLIST.md`：推送和 Mooncakes 发布清单。
 - `docs/DEVELOPMENT_RECORD.md`：开发过程、工单和设计决策记录。
+- `docs/OPEN_SOURCE_COMPLIANCE.md`：开源许可证、来源和生成文件合规记录。
+- `CONTRIBUTING.md`：贡献和本地开发流程。
+- `SECURITY.md`：安全边界和问题反馈说明。
 - `pkg.generated.mbti`：`moon info` 生成的公开 API 快照。
 
 ## Mooncakes 发布
@@ -170,4 +176,4 @@ https://mooncakes.io/api/v0/manifest/ZBZ-ai-nb/cakecheck
 
 ## 开源许可证与参考
 
-本项目使用 MIT 许可证。核心实现为原创 MoonBit 代码，不移植第三方源码，不包含来源不明素材。项目规则参考 MoonBit 官方工具链文档和 Mooncakes 包发布要求。
+本项目使用 MIT 许可证。核心实现为原创 MoonBit 代码，不移植第三方源码，不包含来源不明素材。许可证、来源和生成文件说明见 `docs/OPEN_SOURCE_COMPLIANCE.md`。项目规则参考 MoonBit 官方工具链文档和 Mooncakes 包发布要求。

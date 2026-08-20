@@ -15,6 +15,7 @@ This file keeps a lightweight local work record for reviewers. It complements gi
 | 2026-08-17 | Update participant-facing application material | Done | `HACKATHON_APPLICATION.md`, `TASK_REPORT.md` |
 | 2026-08-19 | Expand effective MoonBit code beyond 4k | Done | analyzer modules, test expansion |
 | 2026-08-20 | Add acceptance self-review and push/release checklist | Done | `docs/ACCEPTANCE_SELF_REVIEW.md`, `docs/PUSH_RELEASE_CHECKLIST.md` |
+| 2026-08-20 | Add contribution, security and open source compliance records | Done | `CONTRIBUTING.md`, `SECURITY.md`, `docs/OPEN_SOURCE_COMPLIANCE.md` |
 
 ## Design Decisions
 
@@ -41,6 +42,7 @@ moon test --deny-warn: 17 passed, 0 failed
 moon run examples/basic: pass
 moon run cmd/main: pass
 moon info: pass
+git diff --exit-code -- API snapshots: pass
 git diff --check: pass
 ```
 
