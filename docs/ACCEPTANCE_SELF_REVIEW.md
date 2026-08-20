@@ -15,9 +15,7 @@ CakeCheck has been pushed to the public GitHub repository and published to Moonc
 - Local check, build, format, test and runnable examples pass.
 - The project has a clear boundary: MoonBit/Mooncakes package readiness audit.
 
-One final repository-side item remains:
-
-- Push the API snapshot normalization commit `057202e` and confirm the new GitHub Actions run passes.
+No repository or release blocker remains. The latest default-branch CI run is successful, and the remaining action is only to submit the project materials.
 
 ## Local Evidence
 
@@ -90,12 +88,13 @@ Important local commits to preserve:
 b598656 docs: add acceptance self review checklist
 bcf588e feat: expand acceptance audit analyzers
 ef1091f feat: add API compatibility release audit
+2576c2b docs: record published package status
 7248c6d docs: update application release status after GitHub publish
 a87d70f chore: set GitHub and Mooncakes owner to ZBZ-ai-nb
 473fe58 docs: add task report with participant information
 ```
 
-Important note: the public GitHub remote contains `665176a`, while local `main` has one additional API snapshot normalization commit `057202e`. Push that commit before final submission so the latest CI result is visible on the default branch.
+Important note: the public GitHub remote and local `main` both point to `2576c2b`, which includes the API snapshot normalization and final publication-status records. The latest default-branch CI run is successful.
 
 Mooncakes publication completed on 2026-08-20 under the confirmed `ZBZ-ai-nb` account. The public manifest reports version `0.1.0`, `has_package=true`, and the package documentation URL returns HTTP 200.
 
@@ -117,17 +116,9 @@ Implemented capability groups:
 - Final acceptance review model.
 - Markdown, JSON, remediation and diff reports.
 
-## Remaining Account-Side Work
+## Final Submission Step
 
-The Mooncakes account-side work is complete. After the correct GitHub Desktop account is confirmed, only these repository checks remain:
-
-1. Push local `main` to `https://github.com/ZBZ-ai-nb/cakecheck` so commit `057202e` is included.
-2. Confirm the GitHub page shows the latest local `main` commit and includes `bcf588e`.
-3. Confirm GitHub Actions passes on the pushed commit.
-4. Log in to Mooncakes with the correct owner account.
-5. Run `moon publish --dry-run`.
-6. Run `moon publish`.
-7. Add the published Mooncakes link to submission materials if the form asks for it.
+All repository and package account-side work is complete. Submit the public GitHub link and the Markdown application materials through the August Hackathon form. For this event, GitHub is the required repository link; Gitlink is not required.
 
 ## Privacy Note
 

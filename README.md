@@ -1,5 +1,7 @@
 # CakeCheck
 
+[![CI](https://github.com/ZBZ-ai-nb/cakecheck/actions/workflows/ci.yml/badge.svg)](https://github.com/ZBZ-ai-nb/cakecheck/actions/workflows/ci.yml)
+
 CakeCheck 是一个用 MoonBit 实现的 MoonBit/Mooncakes 包发布前质量审计库。它不是通用文本检查脚本，而是把 MoonBit 开源包验收中最容易遗漏的工程项做成可复用的数据模型、规则集、评分器和报告导出器。
 
 ## 解决的问题
@@ -178,6 +180,8 @@ moon publish
 https://mooncakes.io/docs/ZBZ-ai-nb/cakecheck
 https://mooncakes.io/api/v0/manifest/ZBZ-ai-nb/cakecheck
 ```
+
+当前发布状态：`ZBZ-ai-nb/cakecheck@0.1.0` 已发布，公开 manifest 可用。
 
 ## 开源许可证与参考
 

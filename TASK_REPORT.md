@@ -101,7 +101,7 @@ moon publish --dry-run
 moon publish
 ```
 
-公开 manifest 已确认 `ZBZ-ai-nb/cakecheck@0.1.0` 存在且 `has_package=true`。当前还需把 API 快照规范化提交推送到 GitHub，并确认最新 Actions 运行通过。
+公开 manifest 已确认 `ZBZ-ai-nb/cakecheck@0.1.0` 存在且 `has_package=true`；API 快照规范化提交已推送，最新 GitHub Actions 已通过。
 
 ## 开源合规说明
 
@@ -109,7 +109,7 @@ moon publish
 
 ## 当前完成情况
 
-项目已完成 MoonBit 包配置、4,000 行以上有效源码、测试、示例、README、许可证、GitHub Actions CI、API 文档、设计说明、测试记录、CHANGELOG、申报书和本任务报告书。当前本地 Git 仓库包含可追踪提交记录，项目已具备推送公开仓库和发布 Mooncakes 包的基础条件。
+项目已完成 MoonBit 包配置、4,000 行以上有效源码、测试、示例、README、许可证、GitHub Actions CI、API 文档、设计说明、测试记录、CHANGELOG、申报书和本任务报告书。GitHub 推送、最新 CI 和 Mooncakes 发布均已完成，项目已具备正式提交条件。
 
 ## 后续计划
 

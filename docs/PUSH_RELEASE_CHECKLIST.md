@@ -23,30 +23,25 @@ Expected remote:
 origin https://github.com/ZBZ-ai-nb/cakecheck.git
 ```
 
-Expected local state:
+Current final state:
 
 ```text
-main...origin/main [ahead 1]
+main...origin/main
+HEAD 2576c2b
 ```
 
-The exact `ahead` number may increase as local checklist/documentation commits are added. Before pushing, confirm these important commits are included in local `main`:
+The final push is complete. The latest default-branch CI run is successful and the following important commits are included:
 
 ```text
 b598656 docs: add acceptance self review checklist
 bcf588e feat: expand acceptance audit analyzers
 057202e fix: refresh API snapshots for current MoonBit
+2576c2b docs: record published package status
 ```
 
-## GitHub Desktop Push Steps
+## GitHub Desktop Push Record
 
-1. Open GitHub Desktop.
-2. Confirm the signed-in account is the intended owner or has write access to `ZBZ-ai-nb/cakecheck`.
-3. Select repository `cakecheck`.
-4. Confirm current branch is `main`.
-5. Confirm it says the branch is ahead of origin.
-6. Click `Push origin`.
-7. Open the repository page and confirm the latest local `main` commit is visible and commit `bcf588e` is included.
-8. Check the `Actions` tab and wait for CI to finish.
+The `cakecheck/main` push was completed through GitHub Desktop under the `ZBZ-ai-nb` account. The repository is synchronized at `2576c2b`; no further push is required.
 
 ## Submission Link
 
@@ -72,9 +67,9 @@ Public package page:
 https://mooncakes.io/docs/ZBZ-ai-nb/cakecheck
 ```
 
-## Mooncakes Release Steps (Already Completed)
+## Mooncakes Release Record (Completed)
 
-Run these only after confirming the correct Mooncakes account/owner:
+The following commands were completed under the confirmed Mooncakes owner account:
 
 ```bash
 moon login
