@@ -66,3 +66,5 @@ moon login
 moon publish --dry-run
 moon publish
 ```
+
+2026-08-20 发布结果：`moon publish` 返回 `Server status: 200 OK`；随后公开 manifest 确认版本 `0.1.0` 的 `has_package=true`，文档页面返回 HTTP 200。

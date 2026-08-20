@@ -93,13 +93,15 @@ license = "MIT"
 description = "MoonBit package readiness auditor for Mooncakes releases"
 ```
 
-正式提交前需要确认 Mooncakes owner 与包名可用，然后执行：
+Mooncakes owner、包名和版本已确认，已在 `ZBZ-ai-nb` 账号下完成正式发布。发布命令记录如下：
 
 ```bash
 moon login
 moon publish --dry-run
 moon publish
 ```
+
+公开 manifest 已确认 `ZBZ-ai-nb/cakecheck@0.1.0` 存在且 `has_package=true`。当前还需把 API 快照规范化提交推送到 GitHub，并确认最新 Actions 运行通过。
 
 ## 开源合规说明
 

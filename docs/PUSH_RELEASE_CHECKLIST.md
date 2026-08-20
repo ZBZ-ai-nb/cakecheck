@@ -26,7 +26,7 @@ origin https://github.com/ZBZ-ai-nb/cakecheck.git
 Expected local state:
 
 ```text
-main...origin/main [ahead N]
+main...origin/main [ahead 1]
 ```
 
 The exact `ahead` number may increase as local checklist/documentation commits are added. Before pushing, confirm these important commits are included in local `main`:
@@ -34,6 +34,7 @@ The exact `ahead` number may increase as local checklist/documentation commits a
 ```text
 b598656 docs: add acceptance self review checklist
 bcf588e feat: expand acceptance audit analyzers
+057202e fix: refresh API snapshots for current MoonBit
 ```
 
 ## GitHub Desktop Push Steps
@@ -61,7 +62,17 @@ Use this application report file as the one-page Markdown project proposal:
 HACKATHON_APPLICATION.md
 ```
 
-## Mooncakes Release Steps
+## Mooncakes Release Status
+
+The package was published successfully on 2026-08-20 using the confirmed `ZBZ-ai-nb` account. The public manifest reports `ZBZ-ai-nb/cakecheck@0.1.0` with `has_package=true`.
+
+Public package page:
+
+```text
+https://mooncakes.io/docs/ZBZ-ai-nb/cakecheck
+```
+
+## Mooncakes Release Steps (Already Completed)
 
 Run these only after confirming the correct Mooncakes account/owner:
 
@@ -89,7 +100,7 @@ After publishing, record the package page in the submission notes:
 https://mooncakes.io/docs/ZBZ-ai-nb/cakecheck
 ```
 
-Public manifest check on 2026-08-20 returned `404 Not Found`, which is expected before successful publication:
+Public manifest check on 2026-08-20 returned the published package record:
 
 ```text
 https://mooncakes.io/api/v0/manifest/ZBZ-ai-nb/cakecheck
@@ -105,4 +116,4 @@ https://mooncakes.io/api/v0/manifest/ZBZ-ai-nb/cakecheck
 - `HACKATHON_APPLICATION.md` is visible and concise enough for submission.
 - `docs/ACCEPTANCE_SELF_REVIEW.md` records local validation evidence.
 - `docs/OPEN_SOURCE_COMPLIANCE.md` records license and provenance evidence.
-- Mooncakes package is published and accessible.
+- Mooncakes package is published and accessible; verified through the public manifest and package page.

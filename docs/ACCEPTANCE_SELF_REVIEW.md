@@ -6,7 +6,7 @@ This document records the local August Hackathon acceptance review for CakeCheck
 
 ## Overall Judgment
 
-CakeCheck is locally ready for GitHub push and later Mooncakes publication preparation. The project now satisfies the main local engineering evidence:
+CakeCheck has been pushed to the public GitHub repository and published to Mooncakes. The project now satisfies the main local engineering evidence:
 
 - MoonBit is the primary implementation language.
 - The repository is a valid MoonBit project.
@@ -15,10 +15,9 @@ CakeCheck is locally ready for GitHub push and later Mooncakes publication prepa
 - Local check, build, format, test and runnable examples pass.
 - The project has a clear boundary: MoonBit/Mooncakes package readiness audit.
 
-Two acceptance items still require account-side action:
+One final repository-side item remains:
 
-- Push the latest local commits to the public GitHub repository.
-- Log in to Mooncakes and publish the package.
+- Push the API snapshot normalization commit `057202e` and confirm the new GitHub Actions run passes.
 
 ## Local Evidence
 
@@ -46,6 +45,7 @@ Two acceptance items still require account-side action:
 | Test record | Pass | `docs/TESTING.md` |
 | Application report | Pass | `HACKATHON_APPLICATION.md` |
 | Task report | Pass | `TASK_REPORT.md` |
+| Mooncakes package | Pass | Public manifest reports `ZBZ-ai-nb/cakecheck@0.1.0`, `has_package=true` |
 | Build artifacts | Pass | `_build` is not tracked by git |
 
 ## Commands Verified
@@ -95,9 +95,9 @@ a87d70f chore: set GitHub and Mooncakes owner to ZBZ-ai-nb
 473fe58 docs: add task report with participant information
 ```
 
-Important note: the public GitHub remote was checked read-only and local `main` is ahead of the remote. The latest local work must be pushed before the submitted GitHub URL shows the 4k+ code.
+Important note: the public GitHub remote contains `665176a`, while local `main` has one additional API snapshot normalization commit `057202e`. Push that commit before final submission so the latest CI result is visible on the default branch.
 
-Mooncakes public manifest check on 2026-08-20 returned `404 Not Found`, so the package still needs to be published after the correct Mooncakes account is confirmed.
+Mooncakes publication completed on 2026-08-20 under the confirmed `ZBZ-ai-nb` account. The public manifest reports version `0.1.0`, `has_package=true`, and the package documentation URL returns HTTP 200.
 
 ## Feature Boundary
 
@@ -119,11 +119,11 @@ Implemented capability groups:
 
 ## Remaining Account-Side Work
 
-These steps should be performed only after the correct GitHub Desktop account is confirmed:
+The Mooncakes account-side work is complete. After the correct GitHub Desktop account is confirmed, only these repository checks remain:
 
-1. Push local `main` to `https://github.com/ZBZ-ai-nb/cakecheck`.
+1. Push local `main` to `https://github.com/ZBZ-ai-nb/cakecheck` so commit `057202e` is included.
 2. Confirm the GitHub page shows the latest local `main` commit and includes `bcf588e`.
-3. Confirm GitHub Actions runs on the pushed commit.
+3. Confirm GitHub Actions passes on the pushed commit.
 4. Log in to Mooncakes with the correct owner account.
 5. Run `moon publish --dry-run`.
 6. Run `moon publish`.
