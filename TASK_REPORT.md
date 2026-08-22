@@ -86,9 +86,9 @@ moon info
 ## 七、完成状态与维护价值
 
 GitHub 仓库和 Mooncakes 包均使用 `ZBZ-ai-nb/cakecheck`，本地 Git 提交身份统一为张丙政及
-报名邮箱。已有公开包版本为 0.1.0；本次修改先在本地完成，未登录 GitHub Desktop、未切换账号、
-未推送、未执行 `moon publish`。后续实际提交前应在正确账号环境完成推送，并按新代码版本重新
-执行发布检查和 Mooncakes 发布。
+报名邮箱。本次最终提交 `b52f040` 已推送到 GitHub `main`，对应 CI 已成功；`0.2.0` 已在
+正确的 Mooncakes owner 环境通过预检并提交正式发布，当前服务端状态为构建队列中。待服务端
+构建完成后，公开清单即可下载该版本。整个过程未登录 GitHub Desktop，也未切换其他账号。
 
 后续维护方向：
 

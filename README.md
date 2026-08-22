@@ -21,7 +21,7 @@ CakeCheck 把这些判断建模为 `ApiCompatibility`、`ApiMigrationPlan` 和 `
 
 ## 安装
 
-当前公开包为 `0.1.0`；本次新增 API 的候选版本为 `0.2.0`，完成正确账号下的发布后使用：
+`0.2.0` 已使用正确账号提交至 Mooncakes，待服务端构建完成后即可使用：
 
 ```bash
 moon add ZBZ-ai-nb/cakecheck@0.2.0

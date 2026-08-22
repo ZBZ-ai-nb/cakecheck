@@ -1,9 +1,9 @@
 # 测试记录
 
-## 2026-08-21 本地修改后的验证结果
+## 2026-08-22 最终版本验证结果
 
-本次修改新增了公共 API 声明级变化和 SemVer 发布契约测试。由于代码尚未推送，
-本文件只记录本地验证结果，不把远端 CI 或新版本 Mooncakes 发布写成已完成。
+本次修改新增了公共 API 声明级变化和 SemVer 发布契约测试。最终提交已推送，GitHub Actions
+已成功；`0.2.0` 也已通过 Mooncakes 预检并接受正式发布，目前等待服务端异步构建。
 
 验证命令：
 
@@ -59,5 +59,14 @@ moon 0.1.20260724
 moonc v0.10.5
 ```
 
-已有 `ZBZ-ai-nb/cakecheck@0.1.0` 发布记录和公开包页面。本次本地代码改变后，
-必须在正确的 Mooncakes owner 环境重新执行 dry-run，并根据最终版本发布。
+已有 `ZBZ-ai-nb/cakecheck@0.1.0` 发布记录和公开包页面。本次最终版本为 `0.2.0`，已在
+`ZBZ-ai-nb` 的正确 owner 环境完成 dry-run 和正式发布请求；待服务端构建完成后再做一次
+公开清单确认。
+
+外部验证记录：
+
+```text
+GitHub commit b52f040: pushed to main
+GitHub Actions CI: success
+Mooncakes 0.2.0: accepted, build_status=queued
+```

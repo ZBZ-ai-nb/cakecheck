@@ -1,7 +1,7 @@
 # Acceptance Self Review
 
-Date: 2026-08-21
-范围：当前本地工作树，未登录 GitHub Desktop，未推送，未执行 `moon publish`。
+Date: 2026-08-22
+范围：最终本地工作树、GitHub 公开仓库和 Mooncakes 发布状态；未登录 GitHub Desktop。
 
 ## 总体判断
 
@@ -9,10 +9,9 @@ Date: 2026-08-21
 并新增了真实可运行的 `ApiChange`、`ApiMigrationPlan` 与 `ApiReleaseContract` 实现。公开生态重合检索
 记录在 `docs/COMPETITIVE_SCAN.md`。
 
-当前本地工程证据完整，但外部验收还不能在本地代替确认：本次修改必须先在正确的
-GitHub 账号下提交推送，随后确认新提交的 CI；若要让 Mooncakes 内容与当前代码保持一致，
-还应在正确的 Mooncakes 账号下发布新的版本。由于用户明确要求暂不登录 Desktop，本报告
-不把这些外部动作伪装成已完成。
+当前本地工程证据完整，最终提交已推送到正确的 GitHub 仓库，且对应 CI 已成功；`0.2.0`
+也已在正确的 Mooncakes owner 环境提交正式发布。Mooncakes 公共服务已经记录该版本，当前
+仍处于异步构建队列中，构建完成后再确认 `has_package=true`。
 
 ## 已满足或可本地验证
 
@@ -28,8 +27,9 @@ GitHub 账号下提交推送，随后确认新提交的 CI；若要让 Mooncakes
 | LICENSE | Pass | 根目录 MIT |
 | 公开项目调研 | Pass | `docs/COMPETITIVE_SCAN.md`、`docs/DIFFERENTIATION.md` |
 | 申报书/任务报告 | Pass | 已同步新的主定位和差异化说明 |
-| GitHub 公开仓库 | Previously confirmed | 远端公开地址为 `ZBZ-ai-nb/cakecheck`，本次新改动尚未推送 |
-| Mooncakes | Previously confirmed | 已有 `ZBZ-ai-nb/cakecheck@0.1.0`；当前本地改动尚未重新发布 |
+| GitHub 公开仓库 | Pass | 远端公开地址为 `ZBZ-ai-nb/cakecheck`，`main` 已更新至 `b52f040` |
+| GitHub Actions | Pass | `b52f040` 对应 CI 已成功 |
+| Mooncakes | Submitted | `ZBZ-ai-nb/cakecheck@0.2.0` 已接受发布并进入构建队列；待构建完成确认可下载 |
 
 ## 核心新增证据
 
@@ -60,8 +60,8 @@ contract.passes()
 - Git remote：`https://github.com/ZBZ-ai-nb/cakecheck.git`；
 - Git 提交身份：报名使用的姓名和邮箱。
 
-## 提交前唯一外部步骤
+## 最后确认
 
-本地验证全部通过后，在正确账号环境完成本次改动的 Git commit/push；然后检查默认分支
-CI 和新代码对应的 Mooncakes 版本。不要在 GitHub Desktop 中切换到其他账号，也不要让
-未确认身份的环境执行推送或发布。
+本次 GitHub 提交、默认分支 CI 和 Mooncakes 正式发布请求均已完成。只需等待 Mooncakes
+异步构建完成，再打开公开包清单确认 `0.2.0` 的 `has_package` 和 `build_status`；不需要
+登录或切换 GitHub Desktop，也不要在其他账号环境重复发布。
