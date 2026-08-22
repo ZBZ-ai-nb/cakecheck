@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.0
+
+- Refocused the primary project boundary on public API release contracts.
+- Added declaration identity matching for `pkg.generated.mbti` snapshots.
+- Distinguished added, removed and changed public declarations.
+- Added an API migration ledger with stable task IDs, risk levels and migration actions.
+- Added SemVer contract validation with Markdown and JSON output.
+- Updated examples, application materials and differentiation evidence after the
+  competitive scan.
+
 ## 0.1.0
 
 - Added MoonBit package audit data model.
@@ -17,5 +27,5 @@
 - Added contribution guide, security policy and open source compliance record.
 - Strengthened CI with formatting, deny-warn checks, strict tests and API snapshot verification.
 - Fixed SemVer metadata handling, Mooncakes documentation URLs and version-aware release tags.
-- Added public API snapshot compatibility analysis with SemVer bump recommendations.
+- Added the initial public API snapshot compatibility analysis with SemVer bump recommendations.
 - Added examples, tests, CI workflow, README and design docs.

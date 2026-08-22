@@ -1,188 +1,154 @@
-# CakeCheck
+# CakeCheck：MoonBit 公共 API 迁移契约检查器
 
 [![CI](https://github.com/ZBZ-ai-nb/cakecheck/actions/workflows/ci.yml/badge.svg)](https://github.com/ZBZ-ai-nb/cakecheck/actions/workflows/ci.yml)
 
-CakeCheck 是一个用 MoonBit 实现的 MoonBit/Mooncakes 包发布前质量审计库。它不是通用文本检查脚本，而是把 MoonBit 开源包验收中最容易遗漏的工程项做成可复用的数据模型、规则集、评分器和报告导出器。
+CakeCheck 是一个用 MoonBit 实现的公共 API 迁移契约检查器。它读取两个版本的
+`pkg.generated.mbti` 接口快照和对应的 SemVer 版本，识别公开声明的新增、删除与同名内容变化，
+再判断版本升级是否覆盖了这次 API 漂移，并生成带稳定 ID 的迁移账本。它面向 MoonBit/Mooncakes 库维护者，解决“构建通过了，
+但发布版本没有准确表达 API 兼容性”的问题。
 
 ## 解决的问题
 
-MoonBit 包作者在发布前通常需要反复确认 `moon.mod`、README、CI、许可证、提交记录、Mooncakes 发布状态是否一致。CakeCheck 接收这些文件文本和仓库状态，输出结构化检查结果、ready 分数、门禁结果、修复计划、证据矩阵、质量矩阵、发布计划、Markdown 报告和 JSON 摘要，适合接入 CI、发布脚本、课程作业检查器或开源项目维护工具。
+库作者通常能看到代码差异，却不容易快速确认：
 
-## 适用场景
+- 哪些公共函数、类型或字段真正新增、删除或改变；
+- 一个同名类型的字段变化是否应被当作 breaking change；
+- 当前版本号是否满足这次快照变化所需的 major/minor/patch 升级；
+- CI 是否可以用一个稳定的 JSON 或 Markdown 契约结果阻止错误发版。
 
-- MoonBit 库作者发布 Mooncakes 包前的自检。
-- 黑客松、课程项目、开源活动的验收辅助。
-- CI 中生成发布质量报告。
-- 维护多个 MoonBit 包时统一检查 README、CI 和许可证规范。
-- WebAssembly 工具中对项目文本做轻量审计。
+CakeCheck 把这些判断建模为 `ApiCompatibility`、`ApiMigrationPlan` 和 `ApiReleaseContract`，输入是接口快照与版本号，
+输出是可读报告和机器可消费的 JSON，不读取网络、不执行仓库中的命令，也不自动发布。
 
 ## 安装
 
-发布后可在 MoonBit 项目中添加：
+当前公开包为 `0.1.0`；本次新增 API 的候选版本为 `0.2.0`，完成正确账号下的发布后使用：
 
 ```bash
-moon add ZBZ-ai-nb/cakecheck@0.1.0
+moon add ZBZ-ai-nb/cakecheck@0.2.0
 ```
 
-当前 Mooncakes 包名：
-
-```text
-ZBZ-ai-nb/cakecheck
-```
-
-GitHub 仓库、README、申报书和 `moon.mod` 中的包名保持一致。
+包名为 `ZBZ-ai-nb/cakecheck`，与 GitHub 仓库和 `moon.mod` 保持一致。
 
 ## 最小使用示例
 
 ```moonbit
-let input = @audit.sample_good_input()
-let report = @audit.audit_project(input)
-println(report.summary())
-println(report.to_markdown())
+let before = "pub fn parse(String) -> String\n"
+let after = before + "pub fn report(String) -> String\n"
+let contract = @audit.build_api_release_contract(
+  before,
+  after,
+  "0.1.0",
+  "0.2.0",
+)
+println(contract.summary())
 ```
 
-完整示例：
+新增公开声明需要至少 minor bump；删除声明或同名声明内容变化按保守策略要求 major bump。
+版本升级低于所需级别时，`contract.passes()` 返回 `false`。
+
+## API 迁移账本
+
+发布契约之外，`ApiMigrationPlan` 会把变化变成可追踪的迁移任务：新增声明标为 `adopt`，
+同名声明变化标为 `migrate`，删除声明标为 `replace`。每项任务都有稳定 ID、风险级别和动作，
+可以直接复制到 Issue、变更日志或发布评审记录中；它不扫描仓库，也不假装知道下游代码，
+只对公共接口变化给出可解释的迁移提醒。
+
+## 可运行示例
 
 ```bash
 moon run examples/basic
 ```
 
-CLI smoke 入口：
+示例会同时展示新增函数、结构体字段变化、major 契约以及 Markdown/JSON 输出。
+
+命令行 smoke 入口：
 
 ```bash
 moon run cmd/main
 ```
 
-## API 与核心功能
+## 核心 API
 
 ```moonbit
-pub fn audit_project(input : AuditInput) -> AuditReport
-pub fn parse_manifest(text : String) -> ManifestInfo
-pub fn sample_good_input() -> AuditInput
-pub fn sample_risky_input() -> AuditInput
-pub fn AuditReport::summary(self : AuditReport) -> String
-pub fn AuditReport::to_markdown(self : AuditReport) -> String
-pub fn AuditReport::to_json(self : AuditReport) -> String
-pub fn AuditReport::has_errors(self : AuditReport) -> Bool
-pub fn AuditReport::is_ready(self : AuditReport) -> Bool
-pub fn AuditReport::gate(self : AuditReport, profile : AuditProfile) -> GateResult
-pub fn AuditReport::remediation_plan(self : AuditReport, limit : Int) -> String
-pub fn diff_reports(before : AuditReport, after : AuditReport) -> AuditDiff
-pub fn analyze_readme(readme : String) -> ReadmeMetrics
-pub fn analyze_workflow(text : String) -> WorkflowInfo
-pub fn analyze_license(text : String) -> LicenseFacts
-pub fn parse_semver(value : String) -> SemVerInfo
-pub fn analyze_namespace(raw : String, repository : String) -> NamespaceInfo
-pub fn analyze_api_compatibility(before : String, after : String) -> ApiCompatibility
-pub fn api_snapshot_declarations(snapshot : String) -> Array[String]
-pub fn build_acceptance_evidence(input : AuditInput) -> EvidenceMatrix
-pub fn build_release_plan(input : AuditInput) -> ReleasePlan
-pub fn build_quality_matrix(input : AuditInput) -> QualityMatrix
-pub fn review_acceptance(input : AuditInput) -> AcceptanceReview
+pub fn analyze_api_compatibility(
+  before : String,
+  after : String,
+) -> ApiCompatibility
+
+pub fn build_api_release_contract(
+  before_snapshot : String,
+  after_snapshot : String,
+  before_version : String,
+  after_version : String,
+) -> ApiReleaseContract
+
+pub fn build_api_migration_plan(
+  compatibility : ApiCompatibility,
+) -> ApiMigrationPlan
 ```
 
-核心检查包括：
+`ApiCompatibility` 提供：
 
-- `moon.mod` 必填字段、包名格式、semver 版本、GitHub 仓库 URL、OSI 许可证字段。
-- README 是否包含安装、用法、示例、验收命令、许可证、包名一致性；常见中英文标题都可识别。
-- GitHub Actions 是否安装 MoonBit 并运行 `moon check`、`moon build`、`moon test`、`moon run`。
-- LICENSE 是否可被轻量识别。
-- 仓库是否公开、提交数量是否足够、CHANGELOG 是否存在。
-- Mooncakes 发布状态和占位符风险。
-- 不同 profile 下的发布门禁结果。
-- README 结构指标、CI 命令覆盖、许可证事实、semver 版本比较和包命名空间一致性。
-- 验收证据矩阵、Mooncakes 发布计划、质量矩阵和最终验收评审摘要。
-- 公共 API 快照兼容性分析，识别新增/删除声明并给出 SemVer bump 建议。
+- `added`：只出现在新快照中的公开声明；
+- `removed`：只出现在旧快照中的公开声明；
+- `changed`：身份相同但签名或公开结构内容不同的声明；
+- `required_bump`：根据变化推导的最小 SemVer 升级；
+- `to_markdown()` 和 `summary()`：适合 CI 日志与人工审阅。
 
-## 支持范围
+`ApiMigrationPlan` 输出 breaking/advisory 数量和迁移任务账本；`ApiReleaseContract` 额外记录旧版本、新版本、实际 bump 和 `passes` 结果，并通过
+`to_json()` 输出稳定的自动化接口。
 
-- 以文本形式审计 MoonBit 项目配置和文档。
-- 适合 CI、教学验收、发布前检查、Mooncakes 包维护场景。
-- 输出结构化 `AuditReport`，可导出 Markdown 和 JSON。
-- 支持 Quick、Release、Hackathon 三种门禁 profile。
-- 支持生成修复建议计划，优先列出错误和警告。
-- 支持比较两次审计结果，展示 ready 分数变化、已修复项和新增问题。
-- 支持生成 Acceptance Evidence、Release Plan、Quality Matrix 和 Acceptance Review。
-- 不依赖第三方库，不读取外部文件，不访问网络。
-- 不提取 README 代码块或建立第三方来源证明，专注于 Mooncakes 发布契约和 API 版本兼容性。
+接口快照通常由 MoonBit 工具链生成：
 
-## 暂不支持范围
+```bash
+moon info
+```
 
-- 不直接替代 `moon check`、`moon build`、`moon test`。
-- 不登录 GitHub 或 Mooncakes，也不执行发布。
-- 不完整解析 YAML、Markdown AST 或 SPDX 全量许可证库。
-- 不自动读取磁盘文件；上层工具负责把文件内容传入 `AuditInput`。
-
-## 本地运行与验收命令
+## 验证
 
 ```bash
 moon fmt --check
-moon check
 moon check --deny-warn
 moon build
-moon test
 moon test --deny-warn
 moon run examples/basic
 moon run cmd/main
 moon info
-moon publish --dry-run
 ```
 
-测试覆盖正常项目、风险项目、moon.mod 解析、中英文 README 覆盖项、CI 命令、评分、Markdown 与 JSON 导出、profile 门禁、修复计划、审计 diff、semver、命名空间、API 快照兼容性、证据矩阵、发布计划、质量矩阵和验收评审。
+GitHub Actions 会执行格式检查、严格检查、构建、测试、两个示例和生成接口快照校验。
 
-当前 MoonBit 源码规模：
+## 功能边界与差异化
 
-```text
-4,929 non-empty non-comment MoonBit code lines
-5,638 total .mbt lines
-```
+CakeCheck 的主功能是“接口快照变化到迁移任务和版本升级”的发布契约，不是通用仓库验收清单。
+项目保留了早期的 `AuditReport` 等辅助接口，用于给已有使用者提供基础工程证据，但它们不是本项目
+当前的主卖点，也不执行任何账户操作。
+
+本项目明确不做：
+
+- 不替代 `mooncake-auditor` 的 README/CI/测试/许可证/仓库验收清单；
+- 不替代 `MoonDocCheck` 的 API 文档注释覆盖率和文档质量报告；
+- 不替代 `MoonSeal` 的 mutation testing、coverage 或测试充分性评估；
+- 不替代 `moonmark` 的依赖图、依赖健康和新鲜度分析；
+- 不替代 `HarborCheck` 的来源证明、身份一致性和验收材料归档；
+- 不读取远端仓库，不登录 GitHub/Mooncakes，不自动执行发布。
+
+调研记录和输入/输出边界见 [`docs/COMPETITIVE_SCAN.md`](docs/COMPETITIVE_SCAN.md) 与
+[`docs/DIFFERENTIATION.md`](docs/DIFFERENTIATION.md)。
+
+## 许可证
+
+MIT。核心实现为原创 MoonBit 代码，不包含来源不明的第三方代码、素材或数据。
+合规说明见 [`docs/OPEN_SOURCE_COMPLIANCE.md`](docs/OPEN_SOURCE_COMPLIANCE.md)。
 
 ## 项目资料
 
-- `HACKATHON_APPLICATION.md`：8 月黑客松一页 Markdown 项目申报书。
-- `TASK_REPORT.md`：项目任务报告书。
-- `docs/API.md`：公开 API 说明。
-- `docs/DESIGN.md`：架构和设计说明。
-- `docs/DIFFERENTIATION.md`：相邻项目调研和选题差异化边界。
-- `docs/TESTING.md`：测试记录和本地验证命令。
-- `docs/ACCEPTANCE_SELF_REVIEW.md`：验收自查证据。
-- `docs/PUSH_RELEASE_CHECKLIST.md`：推送和 Mooncakes 发布清单。
-- `docs/DEVELOPMENT_RECORD.md`：开发过程、工单和设计决策记录。
-- `docs/OPEN_SOURCE_COMPLIANCE.md`：开源许可证、来源和生成文件合规记录。
-- `CONTRIBUTING.md`：贡献和本地开发流程。
-- `SECURITY.md`：安全边界和问题反馈说明。
-- `pkg.generated.mbti`：`moon info` 生成的公开 API 快照。
+- [`docs/API.md`](docs/API.md)：API、快照格式与契约判定规则。
+- [`docs/DESIGN.md`](docs/DESIGN.md)：模块职责和设计取舍。
+- [`docs/COMPETITIVE_SCAN.md`](docs/COMPETITIVE_SCAN.md)：公开生态重合检索记录。
+- [`docs/ACCEPTANCE_SELF_REVIEW.md`](docs/ACCEPTANCE_SELF_REVIEW.md)：验收证据与本地验证。
+- [`docs/TESTING.md`](docs/TESTING.md)：测试记录。
+- [`HACKATHON_APPLICATION.md`](HACKATHON_APPLICATION.md)：黑客松申报书。
+- [`TASK_REPORT.md`](TASK_REPORT.md)：任务报告书。
 
-## Mooncakes 发布
-
-`moon.mod` 发布字段：
-
-```text
-name = "ZBZ-ai-nb/cakecheck"
-version = "0.1.0"
-readme = "README.md"
-repository = "https://github.com/ZBZ-ai-nb/cakecheck.git"
-license = "MIT"
-description = "MoonBit package readiness auditor for Mooncakes releases"
-```
-
-发布流程：
-
-```bash
-moon login
-moon publish --dry-run
-moon publish
-```
-
-发布后检查：
-
-```text
-https://mooncakes.io/docs/ZBZ-ai-nb/cakecheck
-https://mooncakes.io/api/v0/manifest/ZBZ-ai-nb/cakecheck
-```
-
-当前发布状态：`ZBZ-ai-nb/cakecheck@0.1.0` 已发布，公开 manifest 可用。
-
-## 开源许可证与参考
-
-本项目使用 MIT 许可证。核心实现为原创 MoonBit 代码，不移植第三方源码，不包含来源不明素材。许可证、来源和生成文件说明见 `docs/OPEN_SOURCE_COMPLIANCE.md`。项目规则参考 MoonBit 官方工具链文档和 Mooncakes 包发布要求。
+当前仓库保留 4,000 行以上有效 MoonBit 源码，便于同时展示完整工程实现、测试和可维护性。

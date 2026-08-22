@@ -1,122 +1,98 @@
 # CakeCheck 项目任务报告书
 
-## 基本信息
+## 一、基本信息
 
-- 项目名称：CakeCheck
-- 项目定位：MoonBit/Mooncakes 包发布前质量审计库
+- 项目名称：CakeCheck：MoonBit 公共 API 迁移契约检查器
+- 项目定位：接口快照漂移、迁移账本与 SemVer 发布门禁
 - 参赛者：张丙政
 - 联系方式：17355718297 / 3525658676@qq.com
-- GitHub 仓库链接：https://github.com/ZBZ-ai-nb/cakecheck
+- GitHub 仓库：https://github.com/ZBZ-ai-nb/cakecheck
 - Mooncakes 包名：ZBZ-ai-nb/cakecheck
 - 开源许可证：MIT
 
-## 项目背景与选题说明
+## 二、项目背景与选题说明
 
-CakeCheck 面向 MoonBit 开源包发布和验收场景，解决包作者在发布前反复检查 `moon.mod`、README、CI、许可证、提交记录、CHANGELOG 和 Mooncakes 发布状态的问题。项目不是通用文本检查脚本，也不是简单示例工程，而是将 MoonBit/Mooncakes 生态中的包发布质量要求沉淀为可复用的数据模型、审计规则、评分系统、门禁 profile、证据矩阵、质量矩阵、发布计划和报告导出能力。
+MoonBit 库发布时，`moon check` 和测试通过并不代表版本号表达正确。公共函数、类型或
+struct 字段可能已经变化，但维护者仍然发布 patch 或 minor，导致下游用户在升级时遇到
+编译失败。CakeCheck 将这个具体风险转化为可重复的纯 MoonBit 检查流程。
 
-该选题直接服务 MoonBit 生态建设，聚焦 Mooncakes 包发布质量这一细分需求，避免与常见算法库、示例工程或通用脚手架雷同。它适合作为 Mooncakes 包作者、课程项目、黑客松验收和 CI 发布流程中的质量门禁工具，具有明确功能边界和后续维护价值。
+初始版本曾把项目描述为通用包验收审计器。经过公开生态检索后，发现该表述与
+`mooncake-auditor` 的 README/CI/测试/许可证/发布准备度清单直接重合。因此本次任务
+将项目主定位收窄并落实到 API 迁移契约：快照是输入，声明变化是事实，迁移账本是行动清单，
+SemVer bump 是发布判定，Markdown/JSON 是输出。通用工程审计只作为兼容保留和 supporting evidence。
 
-## 主要功能
+## 三、主要功能
 
-- 解析并校验 `moon.mod` 的必填字段、包名格式、semver 版本、GitHub 仓库 URL 和许可证字段；
-- 检查 README 是否包含安装、使用、示例、验收命令、许可证和包名一致性，支持常见中英文标题识别；
-- 检查 GitHub Actions 是否安装 MoonBit，并覆盖 `moon check`、`moon build`、`moon test`、`moon run`；
-- 检查 LICENSE、CHANGELOG、仓库公开状态、提交数量和 Mooncakes 发布状态；
-- 输出 `AuditReport`、ready 分数、Markdown 报告和 JSON 摘要；
-- 提供 Quick、Release、Hackathon 三种门禁 profile；
-- 提供修复建议计划和两次审计结果 diff；
-- 提供 README 结构分析、CI workflow 覆盖分析、许可证事实识别、semver 解析比较和 Mooncakes 命名空间一致性检查；
-- 提供 Acceptance Evidence 证据矩阵、Release Plan 发布计划、Quality Matrix 加权质量评分和 Acceptance Review 最终验收判断；
-- 比较 `pkg.generated.mbti` 公共 API 快照，识别新增/删除声明并给出 SemVer major/minor 版本建议；
-- 提供可运行示例、CLI smoke 入口和完整单元测试。
+1. 读取两个 `pkg.generated.mbti` 文本快照；
+2. 提取公共 `pub`/`pub(all)` 声明并建立函数、struct、enum、type、let 的稳定身份；
+3. 区分新增、删除和同名内容变化，避免简单文本 diff 产生误报；
+4. 根据变化计算 same、patch、minor、major 最小发布等级；
+5. 比较旧版本和新版本，生成 `ApiReleaseContract`；
+6. 在实际版本低于要求、版本非法或版本回退时拒绝契约；
+7. 生成 `ApiMigrationPlan`，将变化映射为稳定 ID、风险和 adopt/migrate/replace 动作；
+8. 输出摘要、Markdown 和 JSON，适配 CI 和发布脚本；
+9. 保留 `AuditReport`、证据矩阵、发布计划等兼容 API，不改变已发布包的既有使用方式。
 
-## 工程实现
+## 四、工程实现
 
-项目以 MoonBit 为主要实现语言，核心模块包括：
+项目以 MoonBit 为主要实现语言。核心文件如下：
 
-- `model.mbt`：审计输入、检查项、评分、报告、门禁和 diff 数据模型；
-- `text.mbt`：轻量文本扫描、大小写归一、占位符检查等基础能力；
-- `manifest.mbt`：`moon.mod` 字段解析、重复字段识别、包名和版本校验；
-- `checks.mbt`：README、CI、许可证、仓库和发布状态审计规则；
-- `report.mbt`：Markdown 和 JSON 报告导出；
-- `profile.mbt`：Quick、Release、Hackathon 门禁策略；
-- `remediation.mbt`：按严重程度生成修复建议；
-- `diff.mbt`：比较两次审计报告并输出改进情况；
-- `scan_utils.mbt`：共享文本、Markdown、命令、链接、标题和 token 扫描工具；
-- `readme_analyzer.mbt`：README 章节、命令块、主题覆盖和结构指标分析；
-- `ci_analyzer.mbt`：GitHub Actions 命令、MoonBit 安装、check/build/test/run 和 target 覆盖分析；
-- `license_analyzer.mbt`：常见 OSI 许可证家族、授权、免责声明和发布可用性分析；
-- `semver_analyzer.mbt`：semver prerelease/build metadata 解析、版本比较和 bump 建议；
-- `namespace_analyzer.mbt`：Mooncakes owner/package 命名空间与 GitHub 仓库一致性检查；
-- `api_compatibility.mbt`：比较公共 API 快照并判断兼容性和版本升级意图；
-- `evidence_matrix.mbt`：将验收要求转化为可展示、可导出的证据矩阵；
-- `release_plan_analyzer.mbt`：生成 Mooncakes 发布命令、验证步骤和阻塞项；
-- `quality_matrix.mbt`：从 metadata、README、CI、license、repository、release、maintainability 维度计算质量分；
-- `acceptance_review.mbt`：汇总审计报告、证据矩阵、质量矩阵和发布计划，输出最终验收判断；
-- `fixtures.mbt` / `tests.mbt`：测试 fixture 和核心功能测试。
+- `api_compatibility.mbt`：公共声明身份、变化模型和发布契约；
+- `api_migration.mbt`：迁移任务、风险级别、动作映射和迁移账本输出；
+- `semver_analyzer.mbt`：SemVer 解析、比较和 bump 分类；
+- `text.mbt`：快照行处理、标记提取和 JSON 转义；
+- `model.mbt`、`report.mbt`：兼容保留的数据模型和报告；
+- `examples/basic`、`cmd/main`：API 契约可运行示例；
+- `tests.mbt`：快照变化、版本门禁和工程兼容测试。
 
-当前 MoonBit 源码规模为 4,929 行非空、非注释 MoonBit 代码，`.mbt` 物理总行数为 5,638 行，达到 8 月黑客松 4,000 行以上参考规模。新增代码均对应实际功能、测试和文档，不通过空文件或无意义拆分凑行数。
+项目不依赖第三方运行库，不执行输入文本中的命令，不访问网络，不登录 GitHub 或 Mooncakes，
+不保存 token，也不自动修改源码。
 
-## 测试与验证
+## 五、差异化核查
 
-本地已通过以下命令：
+已核对的公开相邻项目包括：
+
+- `ZQD-ai-nb/mooncake-auditor`：通用仓库验收；
+- `gywcs101/MoonDocCheck`：文档质量；
+- `LL728/moonseal`：测试充分性和质量门禁；
+- `Tino-hue/moonmark`：依赖健康；
+- `EJJ-ai-nb/harborcheck`：来源、身份和验收证据；
+- `clbbbb/moonbit-license-audit`：SPDX 许可证元数据。
+
+CakeCheck 不实现上述项目的主功能，只提供 API 快照变化到迁移任务和版本 bump 的发布契约。
+完整链接、检索日期和边界见 `docs/COMPETITIVE_SCAN.md` 与 `docs/DIFFERENTIATION.md`。
+
+## 六、测试与验收证据
+
+本地验证命令：
 
 ```bash
-moon check
-moon check --deny-warn
 moon fmt --check
+moon check --deny-warn
 moon build
-moon test
 moon test --deny-warn
 moon run examples/basic
 moon run cmd/main
+moon info
 ```
 
-测试结果：
+测试覆盖 22 个用例，包括基础审计兼容路径、API 快照新增/删除/改变、迁移账本、SemVer 契约通过和
+拒绝、报告导出、README/CI/license 分析和验收证据。当前有效 MoonBit 源码为 4,000 行以上，
+代码均对应实际模型、规则、报告、测试或示例。
 
-```text
-Total tests: 20, passed: 20, failed: 0.
-```
+仓库已配置 GitHub Actions，执行格式检查、严格检查、构建、测试、示例和接口快照校验。
+根目录提供 MIT LICENSE；README、设计说明、测试记录、CHANGELOG、申报书和开源合规说明齐全。
 
-测试覆盖正常项目、风险项目、`moon.mod` 解析、README 覆盖项、中英文小节识别、CI 命令覆盖、评分统计、Markdown/JSON 导出、门禁 profile、修复计划、审计 diff、semver、命名空间、README/CI/license 增强分析、证据矩阵、发布计划、质量矩阵和验收评审。
+## 七、完成状态与维护价值
 
-## 持续集成与发布准备
+GitHub 仓库和 Mooncakes 包均使用 `ZBZ-ai-nb/cakecheck`，本地 Git 提交身份统一为张丙政及
+报名邮箱。已有公开包版本为 0.1.0；本次修改先在本地完成，未登录 GitHub Desktop、未切换账号、
+未推送、未执行 `moon publish`。后续实际提交前应在正确账号环境完成推送，并按新代码版本重新
+执行发布检查和 Mooncakes 发布。
 
-项目已配置 GitHub Actions CI，覆盖 MoonBit 安装、检查、构建、测试、示例运行和 CLI smoke test。`moon.mod` 已包含 Mooncakes 发布所需字段：
+后续维护方向：
 
-```text
-name = "ZBZ-ai-nb/cakecheck"
-version = "0.1.0"
-readme = "README.md"
-repository = "https://github.com/ZBZ-ai-nb/cakecheck.git"
-license = "MIT"
-description = "MoonBit package readiness auditor for Mooncakes releases"
-```
-
-Mooncakes owner、包名和版本已确认，已在 `ZBZ-ai-nb` 账号下完成正式发布。发布命令记录如下：
-
-```bash
-moon login
-moon publish --dry-run
-moon publish
-```
-
-公开 manifest 已确认 `ZBZ-ai-nb/cakecheck@0.1.0` 存在且 `has_package=true`；API 快照规范化提交已推送，最新 GitHub Actions 已通过。
-
-## 开源合规说明
-
-项目采用 MIT 许可证。核心代码为原创 MoonBit 实现，不移植第三方源码，不包含来源不明素材、图片、音频、字体或私有代码。项目规则参考 MoonBit 官方工具链文档和 Mooncakes 包发布要求。
-
-## 当前完成情况
-
-项目已完成 MoonBit 包配置、4,000 行以上有效源码、测试、示例、README、许可证、GitHub Actions CI、API 文档、设计说明、测试记录、CHANGELOG、申报书和本任务报告书。GitHub 推送、最新 CI 和 Mooncakes 发布均已完成，项目已具备正式提交条件。
-
-## 后续计划
-
-- 确认正确的 GitHub Desktop 账号后推送公开仓库，并核对默认分支和 Actions 结果；
-- 确认 Mooncakes owner 账号后执行 `moon publish --dry-run` 并完成正式发布；
-- 增加真实文件读取适配器；
-- 增加 SPDX 许可证识别表；
-- 增加 Mooncakes API 结果导入；
-- 增加 Git 提交信息规则检查；
-- 增加 HTML 报告或 SARIF 导出。
+- 支持更多 `pkg.generated.mbti` 声明形式和公共字段级分类；
+- 保存跨版本契约历史并生成变更日志；
+- 增加 SARIF/CI annotation 输出；
+- 增加可选的本地快照目录适配器，但保持核心库纯函数和无网络副作用。

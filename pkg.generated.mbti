@@ -30,6 +30,10 @@ pub fn audit_project(AuditInput) -> AuditReport
 
 pub fn build_acceptance_evidence(AuditInput) -> EvidenceMatrix
 
+pub fn build_api_migration_plan(ApiCompatibility) -> ApiMigrationPlan
+
+pub fn build_api_release_contract(String, String, String, String) -> ApiReleaseContract
+
 pub fn build_quality_matrix(AuditInput) -> QualityMatrix
 
 pub fn build_release_plan(AuditInput) -> ReleasePlan
@@ -169,17 +173,83 @@ pub fn AcceptanceReview::positive_signals(Self) -> Array[String]
 pub fn AcceptanceReview::summary(Self) -> String
 pub fn AcceptanceReview::to_markdown(Self) -> String
 
+pub(all) struct ApiChange {
+  kind : ApiChangeKind
+  identity : String
+  before : String
+  after : String
+} derive(Eq, @debug.Debug)
+pub fn ApiChange::kind_name(Self) -> String
+pub fn ApiChange::summary(Self) -> String
+
+pub(all) enum ApiChangeKind {
+  Added
+  Removed
+  Changed
+} derive(Eq, @debug.Debug)
+
 pub(all) struct ApiCompatibility {
   before_count : Int
   after_count : Int
   added : Array[String]
   removed : Array[String]
+  changed : Array[ApiChange]
   required_bump : VersionBump
 } derive(Eq, @debug.Debug)
 pub fn ApiCompatibility::has_changes(Self) -> Bool
 pub fn ApiCompatibility::is_compatible(Self) -> Bool
 pub fn ApiCompatibility::summary(Self) -> String
 pub fn ApiCompatibility::to_markdown(Self) -> String
+
+pub(all) enum ApiMigrationAction {
+  Adopt
+  Migrate
+  Replace
+} derive(Eq, @debug.Debug)
+pub fn ApiMigrationAction::name(Self) -> String
+
+pub(all) struct ApiMigrationItem {
+  id : String
+  kind : ApiChangeKind
+  identity : String
+  risk : ApiMigrationRisk
+  action : ApiMigrationAction
+  detail : String
+} derive(Eq, @debug.Debug)
+pub fn ApiMigrationItem::summary(Self) -> String
+
+pub(all) struct ApiMigrationPlan {
+  items : Array[ApiMigrationItem]
+  breaking_count : Int
+  advisory_count : Int
+  migration_required : Bool
+} derive(Eq, @debug.Debug)
+pub fn ApiMigrationPlan::has_breaking_changes(Self) -> Bool
+pub fn ApiMigrationPlan::summary(Self) -> String
+pub fn ApiMigrationPlan::to_json(Self) -> String
+pub fn ApiMigrationPlan::to_markdown(Self) -> String
+
+pub(all) enum ApiMigrationRisk {
+  Informational
+  ReviewRequired
+  Breaking
+} derive(Eq, @debug.Debug)
+pub fn ApiMigrationRisk::name(Self) -> String
+
+pub(all) struct ApiReleaseContract {
+  compatibility : ApiCompatibility
+  migration : ApiMigrationPlan
+  before_version : String
+  after_version : String
+  required_bump : VersionBump
+  declared_bump : VersionBump
+  passes : Bool
+} derive(Eq, @debug.Debug)
+pub fn ApiReleaseContract::is_compatible(Self) -> Bool
+pub fn ApiReleaseContract::passes(Self) -> Bool
+pub fn ApiReleaseContract::summary(Self) -> String
+pub fn ApiReleaseContract::to_json(Self) -> String
+pub fn ApiReleaseContract::to_markdown(Self) -> String
 
 pub(all) struct AuditCheck {
   category : Category

@@ -1,33 +1,42 @@
 # 选题调研与差异化
 
-Date: 2026-08-20
+Date: 2026-08-21
 
-## 调研结论
+## 结论
 
-MoonBit 生态中已经出现相邻的开源质量工具，例如 [HarborCheck](https://github.com/EJJ-ai-nb/harborcheck)。它的公开说明重点是 README 代码块验证、第三方来源证明、申报身份一致性和维护证据整理，并把这些内容汇总为文档/来源证明报告。
+早期版本把 CakeCheck 描述为“MoonBit/Mooncakes 包发布前质量审计库”，这个标题和
+`ZQD-ai-nb/mooncake-auditor` 的通用项目验收清单存在直接重合，不能继续作为主定位。
 
-CakeCheck 不复制这些实现，也不把自己定位成 README 代码块验证器或来源证明工具。CakeCheck 的核心边界是 Mooncakes 发布契约：
+本次修改将主定位收窄为：
 
-| 维度 | CakeCheck 的重点 | 明确不做 |
+> CakeCheck：MoonBit 公共 API 迁移契约、迁移账本与 SemVer 漂移检查器。
+
+主输入从仓库验收材料改为两个 `pkg.generated.mbti` 快照和两个版本号；主输出从
+readiness 分数改为声明级变化集、稳定迁移任务、最小 bump 和可阻断发版的契约结果。
+
+## 功能边界
+
+| 项目 | 它的重点 | CakeCheck 的明确边界 |
 | --- | --- | --- |
-| 包元数据 | 解析 `moon.mod`、owner/package、repository、license、SemVer | 不替代 MoonBit 官方解析器 |
-| CI 发布门禁 | 检查 `moon check`、`build`、`test`、`run` 和 MoonBit 安装覆盖 | 不执行审计文本中的任意命令 |
-| 版本质量 | 比较 `pkg.generated.mbti` 公共 API 快照，识别 breaking change 并建议 major/minor bump | 不生成或修改源码 |
-| 发布流程 | 生成 dry-run、验证、tag 和 publish 步骤并列出阻塞项 | 不登录、不保存 token、不自动发布 |
-| 质量输出 | 输出 Audit、Evidence、Quality、Release Plan 和 Acceptance Review | 不联网代替远端事实核验 |
+| [mooncake-auditor](https://github.com/ZQD-ai-nb/mooncake-auditor) | 通用 README、CI、测试、许可证、提交历史和发布准备度 | 不复制其仓库验收规则；只比较 API 快照并校验版本 bump |
+| [MoonDocCheck](https://github.com/gywcs101/MoonDocCheck) | API 文档注释覆盖、README/示例文档质量、HTML/JSON 报告 | 不统计 `///` 覆盖率，不评价文档写作质量 |
+| [MoonSeal](https://github.com/LL728/moonseal) | 测试充分性、mutation testing、coverage、质量趋势 | 不运行测试生成覆盖率，不做 mutation testing |
+| [moonmark](https://github.com/Tino-hue/moonmark) | 依赖图、循环依赖、依赖新鲜度和健康评分 | 不解析依赖图，不评价第三方依赖健康 |
+| [HarborCheck](https://github.com/EJJ-ai-nb/harborcheck) | README 代码块证明、第三方来源/许可证证明、身份和验收证据 | 不提取 README 代码证明，不建立来源或身份材料档案 |
+| [moonbit-license-audit](https://github.com/clbbbb/moonbit-license-audit) | SPDX 许可证元数据审计 | 不把许可证识别作为主功能 |
 
-## 独立贡献
+## CakeCheck 的独立贡献
 
-1. 将 Mooncakes 包名空间、仓库名和发布版本放在同一个可复用模型中检查。
-2. 将公共 API 快照变化连接到 SemVer 发布建议，补足“构建通过但版本升级不匹配”的工程风险。
-3. 将本地规则结果组织为可消费的 Markdown、JSON、门禁和修复计划，方便接入 CI 或上层 Web 工具。
-4. 保持核心实现无外部依赖、无网络副作用，便于评审复现和长期维护。
+1. 对 `pkg.generated.mbti` 做声明级身份匹配，能把同名 struct/enum 的内容变化归入
+   `changed`，避免简单文本 diff 的“删除 + 新增”噪声。
+2. 将每个变化生成稳定 ID、风险和 adopt/migrate/replace 动作，形成可交接的 API Migration Ledger。
+3. 将 API 变化和 `moon.mod` 版本变化放进同一个纯数据模型，直接判断 release contract
+   是否通过。
+4. 输出稳定的 Markdown/JSON 契约结果，便于在发布 CI 中阻止错误版本，而不读取网络或账号。
+5. 保留旧审计接口作为 supporting evidence，但不再把它们写成选题核心。
 
-## 验证证据
+## 已知风险和诚实说明
 
-- `api_compatibility.mbt`：独立的公共 API 快照比较实现。
-- `tests.mbt`：覆盖新增声明、删除声明、兼容性判断和 SemVer bump 建议。
-- `docs/API.md`：记录 API 使用边界。
-- `docs/DESIGN.md`：记录模块职责和维护方向。
-
-CakeCheck 与相邻工具存在生态问题上的交集，但功能中心、输入模型和输出目标不同；本项目提交时应同时提交本文件，主动说明差异化边界，避免被误解为重复移植或简单改名。
+公共 API 版本门禁本身与“release quality”存在领域邻近性，因此 README、申报书和示例都把
+输入、输出、非目标写清楚。CakeCheck 不声称覆盖上述项目的测试、文档、依赖或来源证明能力；
+它只负责一个具体判断：公共接口快照变化如何转成迁移动作，以及发布的版本号是否准确表达变化。

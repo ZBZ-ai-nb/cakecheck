@@ -206,14 +206,54 @@ test "API compatibility detects breaking changes and release intent" {
   let breaking = analyze_api_compatibility(before, after)
   assert_false(breaking.is_compatible())
   assert_true(breaking.has_changes())
-  assert_eq(breaking.added.length(), 2)
-  assert_eq(breaking.removed.length(), 1)
+  assert_eq(breaking.added.length(), 1)
+  assert_eq(breaking.removed.length(), 0)
+  assert_eq(breaking.changed.length(), 1)
+  assert_eq(breaking.changed[0].identity, "struct:Config")
   assert_eq(breaking.required_bump, Major)
   assert_true(contains(breaking.to_markdown(), "API Compatibility"))
   let stable = analyze_api_compatibility(before, before)
   assert_true(stable.is_compatible())
   assert_eq(stable.required_bump, SameVersion)
   assert_eq(api_snapshot_declarations(after).length(), 3)
+}
+
+///|
+test "API release contract checks declared SemVer against snapshot drift" {
+  let before = "pub fn parse(String) -> String\n"
+  let after = before + "pub fn report(String) -> String\n"
+  let valid = build_api_release_contract(before, after, "0.1.0", "0.2.0")
+  assert_true(valid.is_compatible())
+  assert_true(valid.passes())
+  assert_eq(valid.required_bump, Minor)
+  assert_eq(valid.declared_bump, Minor)
+  assert_true(contains(valid.summary(), "release-contract=yes"))
+  assert_true(contains(valid.to_json(), "\"declared_bump\":\"minor\""))
+  assert_true(contains(valid.to_json(), "\"passes\":true"))
+  let invalid = build_api_release_contract(before, after, "0.1.0", "0.1.1")
+  assert_false(invalid.passes())
+  assert_true(contains(invalid.to_markdown(), "Contract passes: no"))
+}
+
+///|
+test "API migration ledger turns drift into stable migration tasks" {
+  let before = "pub fn parse(String) -> String\npub(all) struct Config {\nvalue : String\n}\n"
+  let after = "pub fn parse(String) -> String\npub fn report(String) -> String\npub(all) struct Config {\nvalue : Int\n}\n"
+  let compatibility = analyze_api_compatibility(before, after)
+  let plan = build_api_migration_plan(compatibility)
+  assert_eq(plan.items.length(), 2)
+  assert_eq(plan.advisory_count, 1)
+  assert_eq(plan.breaking_count, 1)
+  assert_true(plan.has_breaking_changes())
+  assert_eq(plan.items[0].id, "added:fn:report")
+  assert_eq(plan.items[0].risk, Informational)
+  assert_eq(plan.items[0].action, Adopt)
+  assert_eq(plan.items[1].id, "changed:struct:Config")
+  assert_eq(plan.items[1].risk, Breaking)
+  assert_eq(plan.items[1].action, Migrate)
+  assert_true(contains(plan.to_markdown(), "API Migration Ledger"))
+  assert_true(contains(plan.to_json(), "\"migration_required\":true"))
+  assert_true(contains(plan.items[1].summary(), "migrate"))
 }
 
 ///|

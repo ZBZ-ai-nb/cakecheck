@@ -1,114 +1,52 @@
 # Push And Release Checklist
 
-Use this checklist when the correct GitHub Desktop account is ready. Nothing in this file requires changing accounts.
+本清单只用于用户确认身份后的最后操作。本次本地修改期间不需要登录 GitHub Desktop。
 
-## Do Not Mix Accounts
+## 当前本地状态
 
-- Do not push while GitHub Desktop is logged in to an unrelated account.
-- Do not run `git push` from a terminal if you are unsure which credential helper account will be used.
-- Do not edit global Git credential settings just to finish this project.
-- Keep the repository remote as `https://github.com/ZBZ-ai-nb/cakecheck.git`.
+- 仓库：`C:\\Users\\11619\\Documents\\Codex\\2026-08-09\\moonbit-readme-ci-mooncakes-io-git-8\\outputs\\mooncake_audit`
+- 目标 remote：`https://github.com/ZBZ-ai-nb/cakecheck.git`
+- 目标分支：`main`
+- 目标账号：`ZBZ-ai-nb`
+- 已有公开包：`ZBZ-ai-nb/cakecheck@0.1.0`
+- 本次候选版本：`0.2.0`（新增公开 API，至少需要 minor bump）
+- 本次改动：仅在本地，等待严格验证和用户确认后再提交/推送。
 
-## Before Push
+## 身份安全
 
-Local repository path:
+- 不在 GitHub Desktop 中切换到其他账号后操作本仓库。
+- 不修改全局 Git credential 以“抢救”一次推送。
+- 推送前先确认 GitHub Desktop 当前账号确实是 `ZBZ-ai-nb`。
+- Mooncakes 发布前单独确认 `moon whoami` 或等价账号信息。
+- 不把手机号、邮箱或 token 写入源码、日志和公开 Issue。
 
-```text
-C:\Users\11619\Documents\Codex\2026-08-09\moonbit-readme-ci-mooncakes-io-git-8\outputs\mooncake_audit
-```
-
-Expected remote:
-
-```text
-origin https://github.com/ZBZ-ai-nb/cakecheck.git
-```
-
-Current final state:
-
-```text
-main...origin/main
-HEAD 2576c2b
-```
-
-The final push is complete. The latest default-branch CI run is successful and the following important commits are included:
-
-```text
-b598656 docs: add acceptance self review checklist
-bcf588e feat: expand acceptance audit analyzers
-057202e fix: refresh API snapshots for current MoonBit
-2576c2b docs: record published package status
-```
-
-## GitHub Desktop Push Record
-
-The `cakecheck/main` push was completed through GitHub Desktop under the `ZBZ-ai-nb` account. The repository is synchronized at `2576c2b`; no further push is required.
-
-## Submission Link
-
-Use this GitHub repository link for the August Hackathon form:
-
-```text
-https://github.com/ZBZ-ai-nb/cakecheck
-```
-
-Use this application report file as the one-page Markdown project proposal:
-
-```text
-HACKATHON_APPLICATION.md
-```
-
-## Mooncakes Release Status
-
-The package was published successfully on 2026-08-20 using the confirmed `ZBZ-ai-nb` account. The public manifest reports `ZBZ-ai-nb/cakecheck@0.1.0` with `has_package=true`.
-
-Public package page:
-
-```text
-https://mooncakes.io/docs/ZBZ-ai-nb/cakecheck
-```
-
-## Mooncakes Release Record (Completed)
-
-The following commands were completed under the confirmed Mooncakes owner account:
+## 推送前
 
 ```bash
-moon login
-moon publish --dry-run
-moon publish
+git status
+git diff --check
+moon fmt --check
+moon check --deny-warn
+moon build
+moon test --deny-warn
+moon run examples/basic
+moon run cmd/main
+moon info
 ```
 
-Expected package name:
+确认生成接口快照没有未记录变化：
 
-```text
-ZBZ-ai-nb/cakecheck
+```bash
+git diff --exit-code -- pkg.generated.mbti cmd/main/pkg.generated.mbti examples/basic/pkg.generated.mbti
 ```
 
-Expected version:
+## 正确账号下的外部操作
 
-```text
-0.1.0
-```
+1. 只在确认 `ZBZ-ai-nb` 身份后创建本地 commit。
+2. 通过 GitHub Desktop 或已确认凭据的终端推送 `main`。
+3. 检查 GitHub Actions 的新提交是否通过。
+4. 若代码版本要与 Mooncakes 同步，更新版本号后执行 `moon publish --dry-run`，
+   再在正确 owner 下执行正式发布。
+5. 记录新 commit、CI URL、版本号和 Mooncakes 包页面到提交材料。
 
-After publishing, record the package page in the submission notes:
-
-```text
-https://mooncakes.io/docs/ZBZ-ai-nb/cakecheck
-```
-
-Public manifest check on 2026-08-20 returned the published package record:
-
-```text
-https://mooncakes.io/api/v0/manifest/ZBZ-ai-nb/cakecheck
-```
-
-## Final Acceptance Checks
-
-- GitHub repository is public.
-- Latest local commits are visible on GitHub default branch `main`.
-- GitHub Actions CI passes on the latest commit.
-- `README.md` renders correctly on GitHub.
-- `LICENSE` is visible at repository root.
-- `HACKATHON_APPLICATION.md` is visible and concise enough for submission.
-- `docs/ACCEPTANCE_SELF_REVIEW.md` records local validation evidence.
-- `docs/OPEN_SOURCE_COMPLIANCE.md` records license and provenance evidence.
-- Mooncakes package is published and accessible; verified through the public manifest and package page.
+本仓库不自动执行以上外部动作，以免混用账号。
