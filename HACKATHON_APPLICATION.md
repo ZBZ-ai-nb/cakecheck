@@ -46,7 +46,7 @@
 
 ## 预期成果、测试与维护
 
-当前仓库提供 `moon run examples/basic` 和 `moon run cmd/main` 两个可运行示例，36 个测试，
+当前仓库提供 `moon run examples/basic` 和 `moon run cmd/main` 两个可运行示例，38 个测试，
 覆盖解析、目标覆盖、失败预期、证据摘要、策略、调度、重放、风险、指标和历史契约。README、
 API 说明、设计说明、测试记录、更新日志、CI 和开源合规说明同步维护。后续可增加 runner
 适配器、跨机器 artifact 签名、更多宿主能力画像和 CI annotation 输出。
