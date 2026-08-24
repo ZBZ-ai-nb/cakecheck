@@ -1,67 +1,62 @@
-# Acceptance Self Review
+# 验收自查报告
 
-Date: 2026-08-22
-范围：最终本地工作树、GitHub 公开仓库和 Mooncakes 发布状态；未登录 GitHub Desktop。
+日期：2026-08-24
+范围：当前本地最终候选版本；未登录 GitHub，未推送，未重新发布 Mooncakes。
 
 ## 总体判断
 
-本地修改已把项目主定位收窄为“MoonBit 公共 API 迁移契约与 SemVer 漂移检查器”，
-并新增了真实可运行的 `ApiChange`、`ApiMigrationPlan` 与 `ApiReleaseContract` 实现。公开生态重合检索
-记录在 `docs/COMPETITIVE_SCAN.md`。
+初审退回的核心问题是原项目与 `moon_api_guard` 的功能重合。当前版本已做源码级换轨：
+API 快照比较、SemVer 门禁、迁移账本和通用仓库审计文件已从当前包删除；主流程变为
+跨目标场景复现矩阵。新功能边界、检索证据和主动排除项见 `README.md`、申报书、
+`docs/DESIGN.md` 和 `docs/COMPETITIVE_SCAN.md`。
 
-当前本地工程证据完整，最终提交已推送到正确的 GitHub 仓库，且对应 CI 已成功；`0.2.0`
-也已在正确的 Mooncakes owner 环境提交正式发布。Mooncakes 公共服务已经记录该版本，当前
-仍处于异步构建队列中，构建完成后再确认 `has_package=true`。
+## 当前本地证据
 
-## 已满足或可本地验证
-
-| 项目 | 状态 | 证据 |
+| 检查项 | 状态 | 证据 |
 | --- | --- | --- |
-| MoonBit 主实现语言 | Pass | 根目录和子目录核心实现为 `.mbt` |
-| 工程规模 | Pass | 有效 MoonBit 源码保持在 4,000 行以上 |
-| README | Pass | 说明 API 契约、迁移账本输入/输出、使用、示例、验证和边界 |
+| MoonBit 主实现语言 | Pass | 22 个 `.mbt` 文件，约 4311 行有效源码 |
+| README | Pass | 安装、场景格式、观察、报告、示例、验证和边界齐全 |
+| 申报书 | Pass | Markdown，一页左右，包含基础、计划、功能、测试、文档、差异化和许可证 |
 | 可运行示例 | Pass | `moon run examples/basic`、`moon run cmd/main` |
-| 测试 | Pass | `moon test --deny-warn`：22 passed, 0 failed |
-| 构建和严格检查 | Pass | `moon check --deny-warn`、`moon build` |
-| CI 配置 | Pass | `.github/workflows/ci.yml` 覆盖格式、检查、构建、测试、示例和 API 快照 |
-| LICENSE | Pass | 根目录 MIT |
-| 公开项目调研 | Pass | `docs/COMPETITIVE_SCAN.md`、`docs/DIFFERENTIATION.md` |
-| 申报书/任务报告 | Pass | 已同步新的主定位和差异化说明 |
-| GitHub 公开仓库 | Pass | 远端公开地址为 `ZBZ-ai-nb/cakecheck`，`main` 已更新至 `b52f040` |
-| GitHub Actions | Pass | `b52f040` 对应 CI 已成功 |
-| Mooncakes | Submitted | `ZBZ-ai-nb/cakecheck@0.2.0` 已接受发布并进入构建队列；待构建完成确认可下载 |
+| 测试 | Pass | `moon test --deny-warn`：36 passed, 0 failed |
+| 构建与检查 | Pass | `moon check --deny-warn`、`moon build` |
+| 格式与接口 | Pass | `moon fmt --check`、`moon info`、`git diff --check` |
+| CI 配置 | Pass locally | `.github/workflows/ci.yml` 覆盖格式、检查、构建、测试和示例 |
+| 开源许可证 | Pass | 根目录 MIT LICENSE |
+| 功能边界 | Pass | 明确不做 API Guard、通用验收审计、benchmark 和文档质量工具 |
+| 公开项目重合检索 | Pass locally | 已记录 `moon_api_guard`、`moonguard`、`mare_mark` 等边界 |
+| Git 提交历史 | Pending | 本地已有历史；本次换轨提交尚未推送 |
+| GitHub 公开仓库 | Pending | 需要在正确账号完成 push 后确认默认分支 |
+| Mooncakes 发布 | Pending | `0.3.0` 需要在正确 owner 环境重新发布 |
 
-## 核心新增证据
+## 新主功能证据
 
 ```moonbit
-let contract = build_api_release_contract(
-  before_snapshot,
-  after_snapshot,
-  "0.1.0",
-  "0.2.0",
+let manifest = @audit.parse_scenario_manifest(source)
+let matrix = @audit.build_scenario_matrix(manifest, observations, targets)
+let contract = @audit.build_reproduction_contract(
+  matrix,
+  @audit.default_matrix_policy(),
 )
-contract.passes()
+contract.is_ready()
 ```
 
-比较器现在能够区分：
+矩阵会验证场景/目标覆盖、观察状态、输出片段、超时、evidence digest 和策略；契约会
+额外汇总重放 key、确定性调度、目标覆盖和证据摘要。
 
-- 新增公开声明：至少需要 minor；
-- 删除公开声明：需要 major；
-- 同名声明内容改变：按保守策略需要 major；
-- 无变化：允许 same 或更高的向前版本。
+## 重合风险处理
 
-## 身份一致性
+本次不把 API Guard 改成另一个名字。当前源码中没有 `api_compatibility.mbt`、
+`api_migration.mbt`、`semver_analyzer.mbt`，README 和申报书也不再把 `.mbti`、SemVer
+或 API 变化作为项目功能。与 `moon_api_guard` 的关系被写成明确的非目标，而不是“在其基础上扩展”。
 
-当前本地配置继续保持：
+## 提交前剩余动作
 
-- 参赛者：张丙政；
-- GitHub/Mooncakes owner：`ZBZ-ai-nb`；
-- 包名：`ZBZ-ai-nb/cakecheck`；
-- Git remote：`https://github.com/ZBZ-ai-nb/cakecheck.git`；
-- Git 提交身份：报名使用的姓名和邮箱。
+1. 在 GitHub Desktop 中只登录/确认 `ZBZ-ai-nb`，切换到 `cakecheck/main`；
+2. 提交并推送本地换轨版本；
+3. 确认默认分支 CI 成功；
+4. 在同一 owner 环境运行 `moon publish --dry-run` 和 `moon publish`；
+5. 通过 Mooncakes 公共清单确认 `0.3.0` 已构建成功后再提交验收。
 
-## 最后确认
-
-本次 GitHub 提交、默认分支 CI 和 Mooncakes 正式发布请求均已完成。只需等待 Mooncakes
-异步构建完成，再打开公开包清单确认 `0.2.0` 的 `has_package` 和 `build_status`；不需要
-登录或切换 GitHub Desktop，也不要在其他账号环境重复发布。
+除上述外部动作外，本地代码和材料已完成。不要在未确认账号的环境操作，也不要重复发布旧的
+`0.2.0` 版本。

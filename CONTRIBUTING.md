@@ -1,51 +1,30 @@
-# Contributing
+# Contributing to CakeCheck
 
-CakeCheck is a MoonBit package readiness audit library. Contributions should keep the project focused on MoonBit/Mooncakes release quality, not general-purpose linting.
+CakeCheck is a MoonBit cross-target scenario reproduction matrix. Contributions should improve
+scenario declarations, observations, target coverage, replay evidence or report quality.
 
-## Local Setup
-
-Install the MoonBit toolchain, then run:
+## Development loop
 
 ```bash
-moon version --all
-moon fmt --check
+moon fmt
 moon check --deny-warn
-moon build
 moon test --deny-warn
 moon run examples/basic
 moon run cmd/main
 moon info
 ```
 
-If `moon info` changes generated interface files, review the public API diff before committing.
+## Design rules
 
-## Development Rules
+- Keep the core package pure: no file reads, network calls, command execution or credentials.
+- Give every new scenario field a parser error, a valid fixture and a report assertion.
+- Keep target behavior explicit; do not hide Native/JavaScript/Wasm assumptions in string heuristics.
+- Use deterministic ordering and stable digests for records that enter CI artifacts.
+- Redact machine-specific paths before sharing observation output.
+- Keep the project boundary distinct from API compatibility guards, generic repository auditors and
+  benchmark tools. Re-run `docs/COMPETITIVE_SCAN.md` before adding a new major feature.
 
-- Keep core logic in MoonBit.
-- Add tests for new audit rules, analyzers, reports or data models.
-- Keep README and docs aligned with public APIs.
-- Do not add network calls to the core library; account-side actions such as GitHub push and Mooncakes publish remain manual.
-- Do not commit generated build artifacts from `_build`, `.moon`, `target` or executable outputs.
-- Keep third-party code, fixtures and copied text out of the repository unless their license is documented.
+## Pull requests
 
-## Commit Guidance
-
-Use meaningful commits that explain the change:
-
-```text
-feat: add workflow analyzer coverage
-test: cover release plan blockers
-docs: update acceptance evidence
-```
-
-Avoid empty commits, duplicated commits and mechanical line-count changes.
-
-## Pull Request Checklist
-
-- `moon fmt --check` passes.
-- `moon check --deny-warn` passes.
-- `moon build` passes.
-- `moon test --deny-warn` passes.
-- At least one runnable example still works.
-- Public API snapshot is reviewed after `moon info`.
-- README, changelog and relevant docs are updated.
+Describe the scenario format or data-model change, include tests, update README/API/design docs,
+and include a short changelog entry. Do not commit tokens, private command output or personal files.

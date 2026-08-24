@@ -6,554 +6,491 @@ import {
 }
 
 // Values
-pub fn acceptance_level_name(AcceptanceLevel) -> String
+pub fn all_case_ids(ScenarioMatrix) -> Array[String]
 
-pub fn acceptance_reviews_table(Array[AcceptanceReview]) -> String
+pub fn all_scenario_targets() -> Array[ScenarioTarget]
 
-pub fn all_match(String, Array[String]) -> Bool
+pub fn analyze_scenario_risks(ScenarioMatrix) -> ScenarioRiskReport
 
-pub fn analyze_api_compatibility(String, String) -> ApiCompatibility
+pub fn apply_policy(ScenarioMatrix, MatrixPolicy) -> ScenarioMatrix
 
-pub fn analyze_license(String) -> LicenseFacts
+pub fn build_matrix_timeline(Array[ScenarioMatrix]) -> MatrixTimeline
 
-pub fn analyze_namespace(String, String) -> NamespaceInfo
+pub fn build_replay_envelopes(ScenarioMatrix) -> Array[ReplayEnvelope]
 
-pub fn analyze_readme(String) -> ReadmeMetrics
+pub fn build_reproduction_contract(ScenarioMatrix, MatrixPolicy) -> ReproductionContract
 
-pub fn analyze_workflow(String) -> WorkflowInfo
+pub fn build_scenario_matrix(ScenarioManifest, Array[ScenarioObservation], Array[ScenarioTarget]) -> ScenarioMatrix
 
-pub fn any_match(String, Array[String]) -> Bool
+pub fn build_schedule(ScenarioMatrix) -> Array[ScheduleBatch]
 
-pub fn api_snapshot_declarations(String) -> Array[String]
+pub fn contract_invariant(ReproductionContract, String) -> ContractInvariant?
 
-pub fn audit_project(AuditInput) -> AuditReport
+pub fn default_matrix_policy() -> MatrixPolicy
 
-pub fn build_acceptance_evidence(AuditInput) -> EvidenceMatrix
+pub fn diff_scenario_matrices(ScenarioMatrix, ScenarioMatrix) -> ScenarioDiff
 
-pub fn build_api_migration_plan(ApiCompatibility) -> ApiMigrationPlan
+pub fn digest_for_lines(Array[String]) -> String
 
-pub fn build_api_release_contract(String, String, String, String) -> ApiReleaseContract
+pub fn digest_for_matrix(ScenarioMatrix) -> String
 
-pub fn build_quality_matrix(AuditInput) -> QualityMatrix
+pub fn digest_is_well_formed(String) -> Bool
 
-pub fn build_release_plan(AuditInput) -> ReleasePlan
+pub fn evidence_contains(String, String) -> Bool
 
-pub fn canonicalize_token(String) -> String
+pub fn evidence_equal(String, String) -> Bool
 
-pub fn classify_version_bump(String, String) -> VersionBump
+pub fn expected_status(String) -> ExpectedStatus?
 
-pub fn compare_evidence(EvidenceMatrix, EvidenceMatrix) -> AuditDiff
+pub fn failed_case_ids(ScenarioMatrix) -> Array[String]
 
-pub fn compare_semver(String, String) -> Int
+pub fn generate_run_plan(ScenarioMatrix) -> Array[RunPlanStep]
 
-pub fn contains_word(String, String) -> Bool
+pub fn issue_json(ScenarioIssue) -> String
 
-pub fn count_word(String, String) -> Int
+pub fn metrics_average_duration(ScenarioMetrics) -> Int
 
-pub fn diff_reports(AuditReport, AuditReport) -> AuditDiff
+pub fn metrics_target_gap(ScenarioMetrics) -> Int
 
-pub fn evidence_from_report(AuditInput, AuditReport) -> EvidenceMatrix
+pub fn normalize_evidence(String) -> String
 
-pub fn evidence_markdown_summary(AuditInput) -> String
+pub fn observation_for(Array[ScenarioObservation], String, ScenarioTarget) -> ScenarioObservation?
 
-pub fn extract_inline_link_target(String) -> String?
+pub fn observation_key(ScenarioObservation) -> String
 
-pub fn extract_inline_link_text(String) -> String?
+pub fn observation_parse_summary(ObservationParseResult) -> String
 
-pub fn first_token(String) -> String
+pub fn observation_to_json(ScenarioObservation) -> String
 
-pub fn github_owner_repo(String) -> Array[String]
+pub fn observation_to_text(ScenarioObservation) -> String
 
-pub fn heading_level(String) -> Int
+pub fn observations_to_json(Array[ScenarioObservation]) -> String
 
-pub fn heading_text(String) -> String
+pub fn observations_to_text(Array[ScenarioObservation]) -> String
 
-pub fn is_badge_line(String) -> Bool
+pub fn parse_observation_records(String) -> ObservationParseResult
 
-pub fn is_bullet_line(String) -> Bool
+pub fn parse_scenario_manifest(String) -> ScenarioManifest
 
-pub fn is_command_line(String) -> Bool
+pub fn policy_issues(ScenarioManifest, MatrixPolicy) -> Array[ScenarioIssue]
 
-pub fn is_fence_line(String) -> Bool
+pub fn policy_markdown(MatrixPolicy) -> String
 
-pub fn is_heading_line(String) -> Bool
+pub fn policy_summary(MatrixPolicy) -> String
 
-pub fn is_markdown_link_line(String) -> Bool
+pub fn query_scenario_ids(ScenarioMatrix, ScenarioQuery) -> Array[String]
 
-pub fn is_numbered_line(String) -> Bool
+pub fn query_summary(ScenarioMatrix, ScenarioQuery) -> String
 
-pub fn last_token(String) -> String
+pub fn redact_machine_paths(String) -> String
 
-pub fn license_compatibility_note(LicenseFacts, LicenseFacts) -> String
+pub fn replay_envelope_to_json(ReplayEnvelope) -> String
 
-pub fn license_family_name(LicenseFamily) -> String
+pub fn replay_envelope_to_text(ReplayEnvelope) -> String
 
-pub fn license_notice_template(String, String, Int) -> String
+pub fn replay_envelopes_are_unique(Array[ReplayEnvelope]) -> Bool
 
-pub fn longest_section_title(ReadmeMetrics) -> String
+pub fn replay_envelopes_digest(Array[ReplayEnvelope]) -> String
 
-pub fn mooncakes_package_page(String) -> String
+pub fn replay_envelopes_to_json(Array[ReplayEnvelope]) -> String
 
-pub fn namespace_acceptance_issue(NamespaceInfo) -> String
+pub fn replay_envelopes_to_text(Array[ReplayEnvelope]) -> String
 
-pub fn namespace_alignment_table(Array[NamespaceInfo]) -> String
+pub fn replay_key(ScenarioSpec, ScenarioObservation) -> String
 
-pub fn namespace_from_manifest(ManifestInfo) -> NamespaceInfo
+pub fn required_case_ids(ScenarioMatrix) -> Array[String]
 
-pub fn namespace_has_placeholder(String) -> Bool
+pub fn risk_findings_for(ScenarioRiskReport, ScenarioRiskLevel) -> Array[ScenarioRiskFinding]
 
-pub fn package_name_from_repository(String) -> String
+pub fn risk_has_code(ScenarioRiskReport, String) -> Bool
 
-pub fn parse_manifest(String) -> ManifestInfo
+pub fn run_plan_for_target(Array[RunPlanStep], ScenarioTarget) -> Array[RunPlanStep]
 
-pub fn parse_semver(String) -> SemVerInfo
+pub fn run_plan_json(Array[RunPlanStep]) -> String
 
-pub fn quality_axis_named(QualityMatrix, String) -> QualityAxis?
+pub fn run_plan_markdown(Array[RunPlanStep]) -> String
 
-pub fn quality_from_report(AuditInput, AuditReport) -> QualityMatrix
+pub fn run_plan_required_count(Array[RunPlanStep]) -> Int
 
-pub fn quality_matrix_table(Array[QualityMatrix]) -> String
+pub fn run_plan_shell(Array[RunPlanStep]) -> String
 
-pub fn readme_topic_table(ReadmeMetrics) -> String
+pub fn scenario_evidence_digest(String, String) -> String
 
-pub fn recommend_release_version(String, VersionBump) -> String
+pub fn scenario_fixture_catalog_json() -> String
 
-pub fn release_plan_from_report(AuditInput, AuditReport) -> ReleasePlan
+pub fn scenario_fixture_catalog_markdown() -> String
 
-pub fn release_plan_has_command(ReleasePlan, String) -> Bool
+pub fn scenario_fixture_description(ScenarioFixtureKind) -> String
 
-pub fn release_plan_table(Array[ReleasePlan]) -> String
+pub fn scenario_fixture_manifest(ScenarioFixtureKind) -> ScenarioManifest
 
-pub fn remove_trailing_punctuation(String) -> String
+pub fn scenario_fixture_matrix(ScenarioFixtureKind) -> ScenarioMatrix
 
-pub fn review_acceptance(AuditInput) -> AcceptanceReview
+pub fn scenario_fixture_observations(ScenarioFixtureKind) -> Array[ScenarioObservation]
 
-pub fn sample_good_input() -> AuditInput
+pub fn scenario_fixture_source(ScenarioFixtureKind) -> String
 
-pub fn sample_risky_input() -> AuditInput
+pub fn scenario_fixture_targets(ScenarioFixtureKind) -> Array[ScenarioTarget]
 
-pub fn semver_accepts_mooncakes_release(String) -> Bool
+pub fn scenario_matrix_summary(ScenarioMatrix) -> String
 
-pub fn semver_release_table(Array[String]) -> String
+pub fn scenario_metrics(ScenarioMatrix) -> ScenarioMetrics
 
-pub fn split_tokens(String) -> Array[String]
+pub fn scenario_observation_digest(ScenarioObservation) -> String
 
-pub fn suggested_package_name(String, String) -> String
+pub fn scenario_stats(ScenarioMatrix) -> ScenarioStats
 
-pub fn version_bump_name(VersionBump) -> String
+pub fn scenario_target(String) -> ScenarioTarget?
 
-pub fn workflow_acceptance_label(WorkflowInfo) -> String
+pub fn schedule_is_deterministic(Array[ScheduleBatch]) -> Bool
 
-pub fn workflow_command_table(WorkflowInfo) -> String
+pub fn schedule_json(Array[ScheduleBatch]) -> String
+
+pub fn schedule_lane(ScenarioTarget) -> ScheduleLane
+
+pub fn schedule_markdown(Array[ScheduleBatch]) -> String
+
+pub fn schedule_total_estimate(Array[ScheduleBatch]) -> Int
+
+pub fn skipped_case_ids(ScenarioMatrix) -> Array[String]
+
+pub fn stats_summary(ScenarioStats) -> String
+
+pub fn strict_matrix_policy() -> MatrixPolicy
+
+pub fn tag_case_ids(ScenarioMatrix, String) -> Array[String]
+
+pub fn target_case_ids(ScenarioMatrix, ScenarioTarget) -> Array[String]
+
+pub fn target_profile(ScenarioTarget) -> TargetProfile
+
+pub fn target_profile_capabilities(ScenarioTarget) -> Array[String]
+
+pub fn target_profile_is_restricted(ScenarioTarget) -> Bool
+
+pub fn target_profile_summary(ScenarioTarget) -> String
+
+pub fn target_profile_supports(ScenarioTarget, String) -> Bool
+
+pub fn target_profiles_json(Array[ScenarioTarget]) -> String
+
+pub fn target_profiles_markdown(Array[ScenarioTarget]) -> String
+
+pub fn timeline_failed_case_count(MatrixTimeline) -> Int
+
+pub fn timeline_ready_count(MatrixTimeline) -> Int
+
+pub fn validate_observation(ScenarioSpec, ScenarioObservation) -> Array[ScenarioIssue]
 
 // Errors
 
 // Types and methods
-pub(all) enum AcceptanceLevel {
-  AcceptanceReady
-  AcceptanceNearlyReady
-  AcceptanceNeedsWork
-  AcceptanceBlocked
-} derive(Eq, @debug.Debug)
-
-pub(all) struct AcceptanceReview {
-  report : AuditReport
-  evidence : EvidenceMatrix
-  quality : QualityMatrix
-  release_plan : ReleasePlan
-  level : AcceptanceLevel
-  decision : String
-} derive(Eq, @debug.Debug)
-pub fn AcceptanceReview::blocking_reasons(Self) -> Array[String]
-pub fn AcceptanceReview::is_likely_to_pass(Self) -> Bool
-pub fn AcceptanceReview::is_submission_risky(Self) -> Bool
-pub fn AcceptanceReview::level_name(Self) -> String
-pub fn AcceptanceReview::next_actions(Self) -> Array[String]
-pub fn AcceptanceReview::positive_signals(Self) -> Array[String]
-pub fn AcceptanceReview::summary(Self) -> String
-pub fn AcceptanceReview::to_markdown(Self) -> String
-
-pub(all) struct ApiChange {
-  kind : ApiChangeKind
-  identity : String
-  before : String
-  after : String
-} derive(Eq, @debug.Debug)
-pub fn ApiChange::kind_name(Self) -> String
-pub fn ApiChange::summary(Self) -> String
-
-pub(all) enum ApiChangeKind {
-  Added
-  Removed
-  Changed
-} derive(Eq, @debug.Debug)
-
-pub(all) struct ApiCompatibility {
-  before_count : Int
-  after_count : Int
-  added : Array[String]
-  removed : Array[String]
-  changed : Array[ApiChange]
-  required_bump : VersionBump
-} derive(Eq, @debug.Debug)
-pub fn ApiCompatibility::has_changes(Self) -> Bool
-pub fn ApiCompatibility::is_compatible(Self) -> Bool
-pub fn ApiCompatibility::summary(Self) -> String
-pub fn ApiCompatibility::to_markdown(Self) -> String
-
-pub(all) enum ApiMigrationAction {
-  Adopt
-  Migrate
-  Replace
-} derive(Eq, @debug.Debug)
-pub fn ApiMigrationAction::name(Self) -> String
-
-pub(all) struct ApiMigrationItem {
-  id : String
-  kind : ApiChangeKind
-  identity : String
-  risk : ApiMigrationRisk
-  action : ApiMigrationAction
+pub(all) struct ContractInvariant {
+  code : String
+  description : String
+  passes : Bool
   detail : String
 } derive(Eq, @debug.Debug)
-pub fn ApiMigrationItem::summary(Self) -> String
 
-pub(all) struct ApiMigrationPlan {
-  items : Array[ApiMigrationItem]
-  breaking_count : Int
-  advisory_count : Int
-  migration_required : Bool
+pub(all) enum ExpectedStatus {
+  Success
+  Failure
 } derive(Eq, @debug.Debug)
-pub fn ApiMigrationPlan::has_breaking_changes(Self) -> Bool
-pub fn ApiMigrationPlan::summary(Self) -> String
-pub fn ApiMigrationPlan::to_json(Self) -> String
-pub fn ApiMigrationPlan::to_markdown(Self) -> String
+pub fn ExpectedStatus::name(Self) -> String
 
-pub(all) enum ApiMigrationRisk {
-  Informational
-  ReviewRequired
-  Breaking
+pub(all) enum IssueSeverity {
+  Notice
+  Warning
+  Error
 } derive(Eq, @debug.Debug)
-pub fn ApiMigrationRisk::name(Self) -> String
+pub fn IssueSeverity::name(Self) -> String
 
-pub(all) struct ApiReleaseContract {
-  compatibility : ApiCompatibility
-  migration : ApiMigrationPlan
-  before_version : String
-  after_version : String
-  required_bump : VersionBump
-  declared_bump : VersionBump
+pub(all) struct MatrixPolicy {
+  required_targets : Array[ScenarioTarget]
+  max_timeout_ms : Int
+  require_evidence : Bool
+  require_output_for_success : Bool
+  allow_failure_scenarios : Bool
+} derive(Eq, @debug.Debug)
+
+pub(all) struct MatrixSnapshot {
+  label : String
+  digest : String
+  required_count : Int
+  passed_count : Int
+  failed_count : Int
+  skipped_count : Int
+  ready : Bool
+} derive(Eq, @debug.Debug)
+
+pub(all) struct MatrixTimeline {
+  snapshots : Array[MatrixSnapshot]
+  improved : Int
+  regressed : Int
+  stable : Int
+} derive(Eq, @debug.Debug)
+pub fn MatrixTimeline::passes(Self) -> Bool
+pub fn MatrixTimeline::snapshots_all_ready(Self) -> Bool
+pub fn MatrixTimeline::summary(Self) -> String
+pub fn MatrixTimeline::to_json(Self) -> String
+pub fn MatrixTimeline::to_markdown(Self) -> String
+
+pub(all) struct ObservationParseResult {
+  observations : Array[ScenarioObservation]
+  issues : Array[ScenarioIssue]
+} derive(Eq, @debug.Debug)
+
+pub(all) enum ObservationStatus {
+  Passed
+  Failed
+  Skipped
+} derive(Eq, @debug.Debug)
+pub fn ObservationStatus::name(Self) -> String
+
+pub(all) struct ParsedObservation {
+  observation : ScenarioObservation?
+  issues : Array[ScenarioIssue]
+} derive(Eq, @debug.Debug)
+
+pub(all) struct ParsedScenario {
+  spec : ScenarioSpec?
+  issues : Array[ScenarioIssue]
+} derive(Eq, @debug.Debug)
+
+pub(all) struct ReplayEnvelope {
+  case_id : String
+  target : ScenarioTarget
+  command : String
+  expected : ExpectedStatus
+  stdout : String
+  stderr : String
+  duration_ms : Int
+  evidence_digest : String
+  replay_key : String
+} derive(Eq, @debug.Debug)
+
+pub(all) struct ReproductionContract {
+  matrix_name : String
+  matrix_version : String
+  matrix_digest : String
+  policy_digest : String
+  invariants : Array[ContractInvariant]
+  replay_count : Int
+  schedule_batch_count : Int
   passes : Bool
 } derive(Eq, @debug.Debug)
-pub fn ApiReleaseContract::is_compatible(Self) -> Bool
-pub fn ApiReleaseContract::passes(Self) -> Bool
-pub fn ApiReleaseContract::summary(Self) -> String
-pub fn ApiReleaseContract::to_json(Self) -> String
-pub fn ApiReleaseContract::to_markdown(Self) -> String
+pub fn ReproductionContract::is_ready(Self) -> Bool
+pub fn ReproductionContract::summary(Self) -> String
+pub fn ReproductionContract::to_json(Self) -> String
+pub fn ReproductionContract::to_markdown(Self) -> String
 
-pub(all) struct AuditCheck {
-  category : Category
-  severity : Severity
+pub(all) struct RunPlanStep {
+  index : Int
+  scenario_id : String
+  target : ScenarioTarget
+  command : String
+  expected : ExpectedStatus
+  timeout_ms : Int
+  required : Bool
+} derive(Eq, @debug.Debug)
+
+pub(all) struct ScenarioDiff {
+  added_ids : Array[String]
+  removed_ids : Array[String]
+  regressed_ids : Array[String]
+  recovered_ids : Array[String]
+  unchanged_count : Int
+} derive(Eq, @debug.Debug)
+pub fn ScenarioDiff::has_regressions(Self) -> Bool
+pub fn ScenarioDiff::summary(Self) -> String
+pub fn ScenarioDiff::to_json(Self) -> String
+pub fn ScenarioDiff::to_markdown(Self) -> String
+
+pub(all) enum ScenarioFixtureKind {
+  Minimal
+  CrossTarget
+  ExpectedFailure
+  RestrictedTarget
+} derive(Eq, @debug.Debug)
+pub fn ScenarioFixtureKind::name(Self) -> String
+
+pub(all) struct ScenarioIssue {
+  code : String
+  severity : IssueSeverity
+  scenario_id : String
+  target : String
+  message : String
+  hint : String
+} derive(Eq, @debug.Debug)
+
+pub(all) struct ScenarioManifest {
+  name : String
+  version : String
+  specs : Array[ScenarioSpec]
+  issues : Array[ScenarioIssue]
+} derive(Eq, @debug.Debug)
+pub fn ScenarioManifest::to_markdown(Self) -> String
+
+pub(all) struct ScenarioMatrix {
+  name : String
+  version : String
+  specs : Array[ScenarioSpec]
+  observations : Array[ScenarioObservation]
+  coverage : Array[TargetCoverage]
+  issues : Array[ScenarioIssue]
+  required_count : Int
+  completed_count : Int
+  passed_count : Int
+  failed_count : Int
+  skipped_count : Int
+} derive(Eq, @debug.Debug)
+pub fn ScenarioMatrix::coverage_for(Self, ScenarioTarget) -> TargetCoverage?
+pub fn ScenarioMatrix::issue_count(Self, IssueSeverity) -> Int
+pub fn ScenarioMatrix::issues_have_no_errors(Self) -> Bool
+pub fn ScenarioMatrix::passes(Self) -> Bool
+pub fn ScenarioMatrix::required_targets_complete(Self) -> Bool
+pub fn ScenarioMatrix::to_json(Self) -> String
+pub fn ScenarioMatrix::to_markdown(Self) -> String
+
+pub(all) struct ScenarioMetrics {
+  scenario_count : Int
+  target_case_count : Int
+  observed_case_count : Int
+  covered_target_count : Int
+  required_target_count : Int
+  passed_count : Int
+  failed_count : Int
+  skipped_count : Int
+  total_duration_ms : Int
+  min_duration_ms : Int
+  max_duration_ms : Int
+  coverage_percent : Int
+  pass_percent : Int
+  balance_score : Int
+} derive(Eq, @debug.Debug)
+pub fn ScenarioMetrics::ready(Self) -> Bool
+pub fn ScenarioMetrics::summary(Self) -> String
+pub fn ScenarioMetrics::to_json(Self) -> String
+pub fn ScenarioMetrics::to_markdown(Self) -> String
+
+pub(all) struct ScenarioObservation {
+  id : String
+  target : ScenarioTarget
+  status : ObservationStatus
+  stdout : String
+  stderr : String
+  duration_ms : Int
+  evidence_digest : String
+} derive(Eq, @debug.Debug)
+pub fn ScenarioObservation::is_passed(Self) -> Bool
+
+pub(all) struct ScenarioQuery {
+  tag : String
+  target : ScenarioTarget?
+  status : ObservationStatus?
+  required_only : Bool
+} derive(Eq, @debug.Debug)
+
+pub(all) struct ScenarioRiskFinding {
+  scenario_id : String
+  target : ScenarioTarget
+  level : ScenarioRiskLevel
   code : String
   message : String
   hint : String
 } derive(Eq, @debug.Debug)
 
-pub(all) struct AuditDiff {
-  before_readiness : Int
-  after_readiness : Int
-  readiness_delta : Int
-  fixed_codes : Array[String]
-  new_problem_codes : Array[String]
+pub(all) enum ScenarioRiskLevel {
+  Low
+  Medium
+  High
 } derive(Eq, @debug.Debug)
-pub fn AuditDiff::summary(Self) -> String
-pub fn AuditDiff::to_markdown(Self) -> String
+pub fn ScenarioRiskLevel::name(Self) -> String
 
-pub(all) struct AuditInput {
-  moon_mod : String
-  readme : String
-  ci : String
-  license_text : String
-  changelog : String
-  repository_public : Bool
-  commit_count : Int
-  package_published : Bool
+pub(all) struct ScenarioRiskReport {
+  findings : Array[ScenarioRiskFinding]
+  low_count : Int
+  medium_count : Int
+  high_count : Int
+  passes : Bool
 } derive(Eq, @debug.Debug)
+pub fn ScenarioRiskReport::summary(Self) -> String
+pub fn ScenarioRiskReport::to_json(Self) -> String
+pub fn ScenarioRiskReport::to_markdown(Self) -> String
 
-pub(all) enum AuditProfile {
-  Quick
-  Release
-  Hackathon
-} derive(Eq, @debug.Debug)
-
-pub(all) struct AuditReport {
-  package_name : String
-  version : String
-  checks : Array[AuditCheck]
-  score : Score
-} derive(Eq, @debug.Debug)
-pub fn AuditReport::first_problem(Self) -> AuditCheck?
-pub fn AuditReport::gate(Self, AuditProfile) -> GateResult
-pub fn AuditReport::has_errors(Self) -> Bool
-pub fn AuditReport::is_ready(Self) -> Bool
-pub fn AuditReport::pass_count(Self, Category) -> Int
-pub fn AuditReport::problem_count(Self, Category) -> Int
-pub fn AuditReport::remediation_plan(Self, Int) -> String
-pub fn AuditReport::summary(Self) -> String
-pub fn AuditReport::to_json(Self) -> String
-pub fn AuditReport::to_markdown(Self) -> String
-
-pub(all) enum Category {
-  Manifest
-  Readme
-  CI
-  License
-  Release
-  Repository
-} derive(Eq, @debug.Debug)
-
-pub(all) struct EvidenceItem {
-  code : String
-  label : String
-  present : Bool
-  source : String
-} derive(Eq, @debug.Debug)
-pub fn EvidenceItem::markdown_row(Self) -> String
-pub fn EvidenceItem::status_text(Self) -> String
-
-pub(all) struct EvidenceMatrix {
-  items : Array[EvidenceItem]
-  present_count : Int
-  missing_count : Int
-} derive(Eq, @debug.Debug)
-pub fn EvidenceMatrix::acceptance_label(Self) -> String
-pub fn EvidenceMatrix::coverage_percent(Self) -> Int
-pub fn EvidenceMatrix::has(Self, String) -> Bool
-pub fn EvidenceMatrix::is_complete(Self) -> Bool
-pub fn EvidenceMatrix::missing_codes(Self) -> Array[String]
-pub fn EvidenceMatrix::missing_items(Self) -> Array[EvidenceItem]
-pub fn EvidenceMatrix::missing_label_text(Self) -> String
-pub fn EvidenceMatrix::present_items(Self) -> Array[EvidenceItem]
-pub fn EvidenceMatrix::summary(Self) -> String
-pub fn EvidenceMatrix::to_json(Self) -> String
-pub fn EvidenceMatrix::to_markdown(Self) -> String
-
-pub(all) struct GateResult {
-  profile : AuditProfile
-  passed : Bool
-  message : String
-  required_codes : Array[String]
-} derive(Eq, @debug.Debug)
-pub fn GateResult::summary(Self) -> String
-
-pub(all) struct LicenseFacts {
-  family : LicenseFamily
-  spdx_id : String
-  osi_approved : Bool
-  has_copyright : Bool
-  has_permission_grant : Bool
-  has_warranty_disclaimer : Bool
-  has_patent_grant : Bool
-} derive(Eq, @debug.Debug)
-pub fn LicenseFacts::completeness_score(Self) -> Int
-pub fn LicenseFacts::is_publishable(Self) -> Bool
-pub fn LicenseFacts::summary(Self) -> String
-pub fn LicenseFacts::to_markdown(Self) -> String
-
-pub(all) enum LicenseFamily {
-  MIT
-  Apache2
-  BSD2
-  BSD3
-  MPL2
-  UnknownLicense
-} derive(Eq, @debug.Debug)
-
-pub(all) struct ManifestField {
-  key : String
-  value : String
-  line : Int
-} derive(Eq, @debug.Debug)
-
-pub(all) struct ManifestInfo {
-  fields : Array[ManifestField]
-  duplicates : Array[String]
-  malformed_lines : Array[Int]
-} derive(Eq, @debug.Debug)
-pub fn ManifestInfo::get(Self, String) -> String?
-pub fn ManifestInfo::has(Self, String) -> Bool
-pub fn ManifestInfo::package_name(Self) -> String
-pub fn ManifestInfo::version(Self) -> String
-
-pub(all) struct NamespaceInfo {
-  raw : String
-  owner : String
-  package_name : String
-  valid : Bool
-  owner_matches_github : Bool
-  package_matches_repo : Bool
-} derive(Eq, @debug.Debug)
-pub fn NamespaceInfo::canonical_name(Self) -> String
-pub fn NamespaceInfo::github_url(Self) -> String
-pub fn NamespaceInfo::is_publishable(Self) -> Bool
-pub fn NamespaceInfo::mooncakes_url(Self) -> String
-pub fn NamespaceInfo::recommendation(Self) -> String
-pub fn NamespaceInfo::repository_git_url(Self) -> String
-pub fn NamespaceInfo::risk_level(Self) -> String
-pub fn NamespaceInfo::summary(Self) -> String
-pub fn NamespaceInfo::to_markdown(Self) -> String
-
-pub(all) struct QualityAxis {
-  name : String
-  score : Int
-  weight : Int
-  note : String
-} derive(Eq, @debug.Debug)
-pub fn QualityAxis::markdown_row(Self) -> String
-pub fn QualityAxis::max_points(Self) -> Int
-pub fn QualityAxis::rating(Self) -> String
-pub fn QualityAxis::weighted_points(Self) -> Int
-
-pub(all) struct QualityMatrix {
-  axes : Array[QualityAxis]
-  weighted_score : Int
-  max_score : Int
-  normalized_score : Int
-} derive(Eq, @debug.Debug)
-pub fn QualityMatrix::grade(Self) -> String
-pub fn QualityMatrix::improvement_notes(Self) -> Array[String]
-pub fn QualityMatrix::is_competitive(Self) -> Bool
-pub fn QualityMatrix::lowest_axis_name(Self) -> String
-pub fn QualityMatrix::lowest_score(Self) -> Int
-pub fn QualityMatrix::summary(Self) -> String
-pub fn QualityMatrix::to_markdown(Self) -> String
-
-pub(all) struct ReadmeMetrics {
-  line_count : Int
-  heading_count : Int
-  code_block_count : Int
-  command_count : Int
-  link_count : Int
-  bullet_count : Int
-  has_installation : Bool
-  has_usage : Bool
-  has_example : Bool
-  has_validation : Bool
-  has_license : Bool
-  has_support_scope : Bool
-  has_unsupported_scope : Bool
-  sections : Array[SectionInfo]
-} derive(Eq, @debug.Debug)
-pub fn ReadmeMetrics::coverage_score(Self) -> Int
-pub fn ReadmeMetrics::is_complete(Self) -> Bool
-pub fn ReadmeMetrics::missing_topics(Self) -> Array[String]
-pub fn ReadmeMetrics::summary(Self) -> String
-pub fn ReadmeMetrics::to_markdown(Self) -> String
-
-pub(all) struct ReleasePlan {
-  package_name : String
-  version : String
-  steps : Array[ReleaseStep]
-  blockers : Array[String]
-} derive(Eq, @debug.Debug)
-pub fn ReleasePlan::command_script(Self) -> String
-pub fn ReleasePlan::commands(Self) -> Array[String]
-pub fn ReleasePlan::first_blocker(Self) -> String
-pub fn ReleasePlan::is_blocked(Self) -> Bool
-pub fn ReleasePlan::optional_steps(Self) -> Array[ReleaseStep]
-pub fn ReleasePlan::publish_steps(Self) -> Array[ReleaseStep]
-pub fn ReleasePlan::required_steps(Self) -> Array[ReleaseStep]
-pub fn ReleasePlan::summary(Self) -> String
-pub fn ReleasePlan::to_markdown(Self) -> String
-pub fn ReleasePlan::validation_steps(Self) -> Array[ReleaseStep]
-
-pub(all) struct ReleaseStep {
-  index : Int
-  command : String
-  required : Bool
-  description : String
-} derive(Eq, @debug.Debug)
-pub fn ReleaseStep::is_publish(Self) -> Bool
-pub fn ReleaseStep::is_validation(Self) -> Bool
-pub fn ReleaseStep::label(Self) -> String
-pub fn ReleaseStep::markdown_row(Self) -> String
-
-pub(all) struct Score {
-  pass_count : Int
-  info_count : Int
-  warning_count : Int
-  error_count : Int
-  total : Int
-  readiness : Int
-} derive(Eq, @debug.Debug)
-
-pub(all) struct SectionInfo {
+pub(all) struct ScenarioSpec {
+  id : String
   title : String
-  level : Int
-  line : Int
-  body_lines : Int
-} derive(Eq, @debug.Debug)
-
-pub(all) struct SemVerInfo {
-  valid : Bool
-  major : Int
-  minor : Int
-  patch : Int
-  pre_release : String?
-  build_metadata : String?
-} derive(Eq, @debug.Debug)
-pub fn SemVerInfo::acceptance_note(Self) -> String
-pub fn SemVerInfo::compare(Self, Self) -> Int
-pub fn SemVerInfo::core(Self) -> String
-pub fn SemVerInfo::format(Self) -> String
-pub fn SemVerInfo::has_build_metadata(Self) -> Bool
-pub fn SemVerInfo::is_prerelease(Self) -> Bool
-pub fn SemVerInfo::is_stable(Self) -> Bool
-pub fn SemVerInfo::next_major(Self) -> String
-pub fn SemVerInfo::next_minor(Self) -> String
-pub fn SemVerInfo::next_patch(Self) -> String
-pub fn SemVerInfo::release_channel(Self) -> String
-pub fn SemVerInfo::to_markdown(Self) -> String
-
-pub(all) enum Severity {
-  Pass
-  Info
-  Warning
-  Error
-} derive(Eq, @debug.Debug)
-
-pub(all) enum VersionBump {
-  Major
-  Minor
-  Patch
-  SameVersion
-  InvalidVersion
-} derive(Eq, @debug.Debug)
-
-pub(all) struct WorkflowCommand {
-  name : String
   command : String
-  line : Int
+  targets : Array[ScenarioTarget]
+  expected : ExpectedStatus
+  expected_output : String
+  timeout_ms : Int
+  required : Bool
+  tags : Array[String]
+} derive(Eq, @debug.Debug)
+pub fn ScenarioSpec::has_tag(Self, String) -> Bool
+pub fn ScenarioSpec::has_target(Self, ScenarioTarget) -> Bool
+pub fn ScenarioSpec::target_names(Self) -> String
+
+pub(all) struct ScenarioStats {
+  scenario_count : Int
+  target_case_count : Int
+  required_case_count : Int
+  observed_case_count : Int
+  passed_case_count : Int
+  failed_case_count : Int
+  missing_case_count : Int
 } derive(Eq, @debug.Debug)
 
-pub(all) struct WorkflowInfo {
-  command_count : Int
-  moon_command_count : Int
-  has_checkout : Bool
-  has_moon_install : Bool
-  has_check : Bool
-  has_build : Bool
-  has_test : Bool
-  has_run : Bool
-  has_publish_dry_run : Bool
-  targets : Array[String]
-  commands : Array[WorkflowCommand]
+pub(all) enum ScenarioTarget {
+  Native
+  Js
+  Wasm
+  WasmGc
 } derive(Eq, @debug.Debug)
-pub fn WorkflowInfo::coverage_score(Self) -> Int
-pub fn WorkflowInfo::is_acceptance_ready(Self) -> Bool
-pub fn WorkflowInfo::missing_commands(Self) -> Array[String]
-pub fn WorkflowInfo::summary(Self) -> String
-pub fn WorkflowInfo::to_markdown(Self) -> String
+pub fn ScenarioTarget::name(Self) -> String
+
+pub(all) struct ScheduleBatch {
+  index : Int
+  target : ScenarioTarget
+  lane : ScheduleLane
+  steps : Array[ScheduleStep]
+  parallel_safe : Bool
+} derive(Eq, @debug.Debug)
+
+pub(all) enum ScheduleLane {
+  Portable
+  HostBound
+  Restricted
+} derive(Eq, @debug.Debug)
+pub fn ScheduleLane::name(Self) -> String
+
+pub(all) struct ScheduleStep {
+  index : Int
+  case_id : String
+  target : ScenarioTarget
+  lane : ScheduleLane
+  command : String
+  estimated_ms : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) struct TargetCoverage {
+  target : ScenarioTarget
+  required_cases : Int
+  observed_cases : Int
+  passed_cases : Int
+  complete : Bool
+} derive(Eq, @debug.Debug)
+
+pub(all) struct TargetProfile {
+  target : ScenarioTarget
+  label : String
+  supports_files : Bool
+  supports_network : Bool
+  supports_process : Bool
+  notes : String
+} derive(Eq, @debug.Debug)
 
 // Type aliases
 

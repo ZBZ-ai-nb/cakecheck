@@ -1,6 +1,6 @@
 name = "ZBZ-ai-nb/cakecheck"
 
-version = "0.2.0"
+version = "0.3.0"
 
 readme = "README.md"
 
@@ -8,8 +8,8 @@ repository = "https://github.com/ZBZ-ai-nb/cakecheck.git"
 
 license = "MIT"
 
-description = "MoonBit public API migration ledger and SemVer release contract"
+description = "MoonBit cross-target scenario reproduction matrix and evidence toolkit"
 
-keywords = [ "moonbit", "mooncakes", "api", "migration", "semver" ]
+keywords = [ "moonbit", "mooncakes", "scenario", "reproducibility", "wasm" ]
 
 preferred_target = "wasm"

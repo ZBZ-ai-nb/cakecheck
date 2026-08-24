@@ -1,335 +1,507 @@
 ///|
-test "parses moon.mod fields and detects duplicates" {
-  let manifest = parse_manifest(
-    "name = \"owner/pkg\"\nversion = \"0.1.0\"\nname = \"owner/pkg2\"\nbroken\n",
+test "parses matrix metadata and one scenario" {
+  let manifest = parse_scenario_manifest(sample_manifest())
+  assert_eq(manifest.name, "demo")
+  assert_eq(manifest.version, "0.3.0")
+  assert_eq(manifest.specs.length(), 2)
+  assert_eq(manifest.issues.length(), 0)
+  assert_eq(manifest.specs[0].target_names(), "native,js,wasm")
+}
+
+///|
+test "quoted command and output remain intact" {
+  let manifest = parse_scenario_manifest(sample_manifest())
+  assert_eq(manifest.specs[0].command, "moon run examples/basic --target all")
+  assert_eq(manifest.specs[0].expected_output, "hello world")
+  assert_true(manifest.specs[0].has_tag("smoke"))
+  assert_true(manifest.specs[0].has_tag("docs"))
+}
+
+///|
+test "parser reports missing header and empty scenarios" {
+  let manifest = parse_scenario_manifest(
+    "scenario id=x command=run targets=native expected=success\n",
   )
-  assert_eq(manifest.fields.length(), 3)
-  assert_eq(manifest.duplicates.length(), 1)
-  assert_eq(manifest.malformed_lines.length(), 1)
-  assert_eq(manifest.package_name(), "owner/pkg")
-  assert_true(manifest.has("version"))
+  assert_true(manifest.issues.length() >= 1)
+  assert_true(has_issue(manifest.issues, "matrix-header-missing"))
 }
 
 ///|
-test "validates package names and versions through audit" {
-  let report = audit_project(sample_good_input())
-  assert_false(report.has_errors())
-  assert_true(report.score.readiness >= 90)
-  assert_eq(report.package_name, "ZBZ-ai-nb/cakecheck")
-  assert_eq(report.version, "0.1.0")
-}
-
-///|
-test "finds risky project gaps" {
-  let report = audit_project(sample_risky_input())
-  assert_true(report.has_errors())
-  assert_true(report.score.error_count >= 4)
-  assert_true(report.score.warning_count >= 3)
-}
-
-///|
-test "README coverage checks are explicit" {
-  let risky = audit_project(sample_risky_input())
-  let mut found = false
-  let mut index = 0
-  while index < risky.checks.length() {
-    if risky.checks[index].code == "readme-test-command" {
-      found = true
-    }
-    index += 1
-  }
-  assert_true(found)
-}
-
-///|
-test "CI checks require build test and example commands" {
-  let risky = audit_project(sample_risky_input())
-  let mut missing_build = false
-  let mut missing_run = false
-  let mut index = 0
-  while index < risky.checks.length() {
-    if risky.checks[index].code == "ci-moon-build" &&
-      risky.checks[index].severity == Error {
-      missing_build = true
-    }
-    if risky.checks[index].code == "ci-moon-run" &&
-      risky.checks[index].severity == Error {
-      missing_run = true
-    }
-    index += 1
-  }
-  assert_true(missing_build)
-  assert_true(missing_run)
-}
-
-///|
-test "exports markdown and json summaries" {
-  let report = audit_project(sample_good_input())
-  let markdown = report.to_markdown()
-  let json = report.to_json()
-  assert_true(contains(markdown, "CakeCheck Audit Report"))
-  assert_true(contains(markdown, "| Severity | Category | Code | Message |"))
-  assert_true(contains(json, "\"package\":\"ZBZ-ai-nb/cakecheck\""))
-  assert_true(contains(report.summary(), "readiness="))
-}
-
-///|
-test "score tracks pass warning info and error buckets" {
-  let report = audit_project(sample_risky_input())
-  assert_true(report.score.total == report.checks.length())
-  assert_true(report.score.pass_count > 0)
-  assert_true(report.score.readiness < 80)
-}
-
-///|
-test "README checker accepts Chinese section names" {
-  let input = audit_input(
-    "name = \"acme/cakecheck\"\nversion = \"0.1.0\"\nreadme = \"README.md\"\nrepository = \"https://github.com/acme/cakecheck.git\"\nlicense = \"MIT\"\ndescription = \"MoonBit package readiness auditor\"\npreferred_target = \"wasm\"\n",
-    "# CakeCheck\n\n## 安装\nmoon add acme/cakecheck@0.1.0\n\n## 使用\nRun audit.\n\n## 示例\nmoon run examples/basic\n\n## 验证\nmoon check\nmoon build\nmoon test\nmoon publish --dry-run\n\n## 许可证\nMIT\n\nacme/cakecheck\n",
-    "moon version\nmoon check\nmoon build\nmoon test\nmoon run examples/basic\n",
-    "MIT License\n", "# Changelog\n", true, 7, true,
+test "parser rejects an unknown target" {
+  let manifest = parse_scenario_manifest(
+    "matrix name=x version=0.3.0\nscenario id=x command=run targets=quantum expected=success\n",
   )
-  let report = audit_project(input)
-  assert_false(report.has_errors())
+  assert_true(has_issue(manifest.issues, "scenario-target-invalid"))
+  assert_eq(manifest.specs.length(), 0)
 }
 
 ///|
-test "gate profiles distinguish release and hackathon readiness" {
-  let good = audit_project(sample_good_input())
-  assert_true(good.gate(Quick).passed)
-  assert_true(good.gate(Release).passed)
-  assert_true(good.gate(Hackathon).passed)
-  let risky = audit_project(sample_risky_input())
-  assert_false(risky.gate(Quick).passed)
-  assert_false(risky.gate(Hackathon).passed)
-  assert_true(risky.problem_count(CI) >= 3)
+test "parser rejects an invalid timeout" {
+  let manifest = parse_scenario_manifest(
+    "matrix name=x version=0.3.0\nscenario id=x command=run targets=native expected=success timeout_ms=0\n",
+  )
+  assert_true(has_issue(manifest.issues, "scenario-timeout-invalid"))
 }
 
 ///|
-test "remediation plan prioritizes errors" {
-  let risky = audit_project(sample_risky_input())
-  let plan = risky.remediation_plan(3)
-  assert_true(contains(plan, "Remediation Plan"))
-  assert_true(contains(plan, "[ERROR]"))
-  match risky.first_problem() {
-    Some(item) => assert_eq(item.severity, Error)
-    None => fail("expected a problem")
+test "scenario target names and profiles are stable" {
+  assert_eq(Native.name(), "native")
+  assert_eq(Js.name(), "js")
+  assert_eq(Wasm.name(), "wasm")
+  assert_eq(WasmGc.name(), "wasm-gc")
+  assert_true(target_profile(Native).supports_process)
+  assert_false(target_profile(Wasm).supports_files)
+  assert_true(target_profile_is_restricted(WasmGc))
+}
+
+///|
+test "passing observations complete a required matrix" {
+  let matrix = sample_matrix()
+  assert_true(matrix.passes())
+  assert_eq(matrix.required_count, 4)
+  assert_eq(matrix.completed_count, 4)
+  assert_eq(matrix.passed_count, 4)
+  assert_eq(matrix.failed_count, 0)
+  assert_eq(matrix.skipped_count, 0)
+}
+
+///|
+test "matrix records missing required observations" {
+  let manifest = parse_scenario_manifest(sample_manifest())
+  let matrix = build_scenario_matrix(manifest, [], [Native, Js, Wasm])
+  assert_false(matrix.passes())
+  assert_true(has_issue(matrix.issues, "observation-missing"))
+  assert_true(has_issue(matrix.issues, "target-coverage-incomplete"))
+}
+
+///|
+test "matrix detects wrong output and duration" {
+  let manifest = parse_scenario_manifest(sample_manifest())
+  let observation = ScenarioObservation::{
+    id: "hello",
+    target: Native,
+    status: Passed,
+    stdout: "different",
+    stderr: "",
+    duration_ms: 999999,
+    evidence_digest: "evidence-test",
   }
+  let matrix = build_scenario_matrix(manifest, [observation], [Native])
+  assert_false(matrix.passes())
+  assert_eq(matrix.failed_count, 1)
 }
 
 ///|
-test "diff reports fixed and new problems" {
-  let before = audit_project(sample_risky_input())
-  let after = audit_project(sample_good_input())
-  let diff = diff_reports(before, after)
-  assert_true(diff.readiness_delta > 0)
-  assert_true(diff.fixed_codes.length() > 0)
-  assert_eq(diff.new_problem_codes.length(), 0)
-  assert_true(contains(diff.summary(), "delta="))
-  assert_true(contains(diff.to_markdown(), "CakeCheck Diff"))
+test "expected failures are valid observations" {
+  let source = "matrix name=negative version=0.3.0\n" +
+    "scenario id=reject title=reject command=run targets=native expected=failure " +
+    "output=\"bad input\" timeout_ms=1000 required=true\n"
+  let manifest = parse_scenario_manifest(source)
+  let digest = scenario_evidence_digest("bad input", "")
+  let observation = ScenarioObservation::{
+    id: "reject",
+    target: Native,
+    status: Failed,
+    stdout: "bad input",
+    stderr: "",
+    duration_ms: 2,
+    evidence_digest: digest,
+  }
+  let matrix = build_scenario_matrix(manifest, [observation], [Native])
+  assert_true(matrix.passes())
 }
 
 ///|
-test "semver analyzer parses prerelease metadata and bump intent" {
-  let info = parse_semver("1.2.3-alpha.1+build.5")
-  assert_true(info.valid)
-  assert_eq(info.major, 1)
-  assert_eq(info.minor, 2)
-  assert_eq(info.patch, 3)
-  assert_true(info.is_prerelease())
-  assert_true(info.has_build_metadata())
-  assert_eq(info.core(), "1.2.3")
-  assert_eq(info.release_channel(), "prerelease")
-  assert_true(compare_semver("1.0.0-alpha.1", "1.0.0") < 0)
-  assert_eq(classify_version_bump("1.2.3", "1.3.0"), Minor)
-  assert_eq(version_bump_name(Patch), "patch")
-  assert_eq(recommend_release_version("1.2.3", Patch), "1.2.4")
-  assert_true(contains(info.to_markdown(), "Version Analysis"))
+test "duplicate scenario ids are rejected" {
+  let source = "matrix name=x version=0.3.0\n" +
+    "scenario id=s command=a targets=native expected=success\n" +
+    "scenario id=s command=b targets=native expected=success\n"
+  let manifest = parse_scenario_manifest(source)
+  let matrix = build_scenario_matrix(manifest, [], [Native])
+  assert_true(has_issue(matrix.issues, "scenario-id-duplicate"))
 }
 
 ///|
-test "manifest audit accepts complete semantic versions" {
-  let report = audit_project(
-    audit_input(
-      "name = \"acme/cakecheck\"\nversion = \"1.2.3-alpha.1+build.5\"\nreadme = \"README.md\"\nrepository = \"https://github.com/acme/cakecheck.git\"\nlicense = \"MIT\"\ndescription = \"MoonBit package readiness auditor\"\npreferred_target = \"wasm\"\n",
-      "# CakeCheck\n\n## Installation\nmoon add acme/cakecheck@1.2.3-alpha.1\n\n## Usage\nRun audit.\n\n## Example\nmoon run examples/basic\n\n## Validation\nmoon check\nmoon build\nmoon test\nmoon publish --dry-run\n\n## License\nMIT\n\nacme/cakecheck\n",
-      "name: CI\nsteps:\n  - run: curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash\n  - run: moon check\n  - run: moon build\n  - run: moon test\n  - run: moon run examples/basic\n",
-      "MIT License\n\nPermission is hereby granted to any person obtaining a copy\n",
-      "# Changelog\n\n## 1.2.3\n", true, 8, true,
+test "duplicate observations are rejected" {
+  let manifest = parse_scenario_manifest(sample_manifest())
+  let digest = scenario_evidence_digest("hello world", "")
+  let observation = sample_observation("hello", Native, digest)
+  let matrix = build_scenario_matrix(manifest, [observation, observation], [
+    Native,
+  ])
+  assert_true(has_issue(matrix.issues, "observation-duplicate"))
+}
+
+///|
+test "evidence digest is deterministic and normalized" {
+  let first = scenario_evidence_digest("hello\nworld", "")
+  let second = scenario_evidence_digest("  hello\r\nworld  ", "")
+  assert_eq(first, second)
+  assert_true(digest_is_well_formed(first))
+  assert_true(evidence_equal("a\n\nb", " a\r\nb "))
+  assert_true(evidence_contains("hello world", "world"))
+}
+
+///|
+test "matrix digest changes when evidence changes" {
+  let matrix = sample_matrix()
+  let before_digest = digest_for_matrix(matrix)
+  let changed = ScenarioObservation::{
+    id: "hello",
+    target: Native,
+    status: Passed,
+    stdout: "changed",
+    stderr: "",
+    duration_ms: 1,
+    evidence_digest: scenario_evidence_digest("changed", ""),
+  }
+  let manifest = parse_scenario_manifest(sample_manifest())
+  let after = build_scenario_matrix(
+    manifest,
+    [
+      changed,
+      sample_observation(
+        "hello",
+        Js,
+        scenario_evidence_digest("hello world", ""),
+      ),
+      sample_observation(
+        "hello",
+        Wasm,
+        scenario_evidence_digest("hello world", ""),
+      ),
+      sample_observation(
+        "lint",
+        Native,
+        scenario_evidence_digest("lint ok", ""),
+      ),
+    ],
+    [Native, Js, Wasm],
+  )
+  assert_true(digest_for_matrix(after) != before_digest)
+}
+
+///|
+test "query filters by target tag and status" {
+  let matrix = sample_matrix()
+  assert_eq(target_case_ids(matrix, Js).length(), 1)
+  assert_eq(tag_case_ids(matrix, "smoke").length(), 3)
+  assert_eq(required_case_ids(matrix).length(), 4)
+  assert_eq(failed_case_ids(matrix).length(), 0)
+  assert_eq(skipped_case_ids(matrix).length(), 0)
+}
+
+///|
+test "stats summarize target cases" {
+  let stats = scenario_stats(sample_matrix())
+  assert_eq(stats.scenario_count, 2)
+  assert_eq(stats.target_case_count, 4)
+  assert_eq(stats.required_case_count, 4)
+  assert_eq(stats.observed_case_count, 4)
+  assert_eq(stats.passed_case_count, 4)
+  assert_eq(stats.missing_case_count, 0)
+}
+
+///|
+test "default policy accepts the sample matrix" {
+  let matrix = apply_policy(sample_matrix(), default_matrix_policy())
+  assert_true(matrix.passes())
+  assert_true(policy_summary(default_matrix_policy()).length() > 0)
+}
+
+///|
+test "strict policy reports missing wasm gc coverage" {
+  let matrix = apply_policy(sample_matrix(), strict_matrix_policy())
+  assert_false(matrix.passes())
+  assert_true(has_issue(matrix.issues, "policy-target-not-covered"))
+}
+
+///|
+test "run plan expands one scenario per target" {
+  let steps = generate_run_plan(sample_matrix())
+  assert_eq(steps.length(), 4)
+  assert_eq(run_plan_required_count(steps), 4)
+  assert_eq(run_plan_for_target(steps, Native).length(), 2)
+  assert_true(run_plan_shell(steps).contains("hello"))
+}
+
+///|
+test "reports contain matrix facts" {
+  let matrix = sample_matrix()
+  let markdown = matrix.to_markdown()
+  let json = matrix.to_json()
+  assert_true(markdown.contains("Target Coverage"))
+  assert_true(markdown.contains("hello"))
+  assert_true(json.contains("\"passes\":true"))
+  assert_true(
+    issue_json(scenario_issue("x", Notice, "s", "native", "m", "h")).contains(
+      "notice",
     ),
   )
-  assert_false(report.has_errors())
-  assert_eq(report.version, "1.2.3-alpha.1+build.5")
 }
 
 ///|
-test "namespace analyzer aligns Mooncakes name with GitHub repository" {
-  let info = analyze_namespace(
-    "ZBZ-ai-nb/cakecheck", "https://github.com/ZBZ-ai-nb/cakecheck.git",
+test "history identifies regressions and recovery" {
+  let before = sample_matrix()
+  let after_manifest = parse_scenario_manifest(sample_manifest())
+  let after_observations = [
+    ScenarioObservation::{
+      id: "hello",
+      target: Native,
+      status: Passed,
+      stdout: "broken",
+      stderr: "",
+      duration_ms: 10,
+      evidence_digest: scenario_evidence_digest("broken", ""),
+    },
+    sample_observation("hello", Js, scenario_evidence_digest("hello world", "")),
+    sample_observation(
+      "hello",
+      Wasm,
+      scenario_evidence_digest("hello world", ""),
+    ),
+    sample_observation("lint", Native, scenario_evidence_digest("lint ok", "")),
+  ]
+  let after = build_scenario_matrix(after_manifest, after_observations, [
+    Native,
+    Js,
+    Wasm,
+  ])
+  let diff = diff_scenario_matrices(before, after)
+  assert_true(diff.has_regressions())
+  assert_true(diff.regressed_ids.length() >= 1)
+  assert_true(diff.to_markdown().contains("Regressed"))
+}
+
+///|
+test "observation records round trip through the text format" {
+  let digest = scenario_evidence_digest("hello world", "")
+  let original = sample_observation("hello", Native, digest)
+  let encoded = observation_to_text(original)
+  let parsed = parse_observation_records(encoded)
+  assert_eq(parsed.issues.length(), 0)
+  assert_eq(parsed.observations.length(), 1)
+  assert_eq(observation_key(parsed.observations[0]), "hello@native")
+  assert_eq(parsed.observations[0].stdout, "hello world")
+}
+
+///|
+test "observation parser rejects malformed records" {
+  let parsed = parse_observation_records(
+    "observation id=x target=unknown status=wat duration_ms=nope\n",
   )
-  assert_true(info.valid)
-  assert_eq(info.owner, "ZBZ-ai-nb")
-  assert_eq(info.package_name, "cakecheck")
-  assert_true(info.owner_matches_github)
-  assert_true(info.package_matches_repo)
-  assert_true(info.is_publishable())
-  assert_eq(
-    info.repository_git_url(),
-    "https://github.com/ZBZ-ai-nb/cakecheck.git",
+  assert_true(parsed.issues.length() >= 3)
+  assert_eq(parsed.observations.length(), 0)
+}
+
+///|
+test "observation JSON includes evidence fields" {
+  let observation = sample_observation(
+    "hello",
+    Native,
+    scenario_evidence_digest("hello world", ""),
   )
-  assert_true(contains(info.mooncakes_url(), "cakecheck"))
-  assert_eq(
-    package_name_from_repository("git@github.com:ZBZ-ai-nb/cakecheck.git"),
-    "ZBZ-ai-nb/cakecheck",
+  let json = observation_to_json(observation)
+  assert_true(json.contains("\"target\":\"native\""))
+  assert_true(json.contains("\"digest\""))
+  assert_true(observations_to_json([observation]).contains("stdout"))
+}
+
+///|
+test "schedule groups cases by target and stays deterministic" {
+  let schedule = build_schedule(sample_matrix())
+  assert_true(schedule_is_deterministic(schedule))
+  assert_eq(schedule.length(), 3)
+  assert_eq(schedule_total_estimate(schedule), 40)
+  assert_true(schedule_markdown(schedule).contains("Execution Schedule"))
+  assert_true(schedule_json(schedule).contains("parallel_safe"))
+}
+
+///|
+test "replay envelopes have unique stable keys" {
+  let envelopes = build_replay_envelopes(sample_matrix())
+  assert_eq(envelopes.length(), 4)
+  assert_true(replay_envelopes_are_unique(envelopes))
+  assert_true(replay_envelopes_digest(envelopes).length() > 0)
+  assert_true(replay_envelopes_to_text(envelopes).contains("replay"))
+  assert_true(replay_envelopes_to_json(envelopes).contains("replay_key"))
+}
+
+///|
+test "replay redacts machine-specific path fragments" {
+  let redacted = redact_machine_paths(
+    "C:\\Users\\alice\\project /home/bob/project",
   )
-  assert_true(contains(namespace_alignment_table([info]), "cakecheck"))
+  assert_true(redacted.contains("<user>/alice"))
+  assert_true(redacted.contains("<home>/bob"))
+  assert_false(redacted.contains("C:\\Users\\"))
 }
 
 ///|
-test "release plan uses the manifest version and current Mooncakes URL" {
-  let plan = build_release_plan(sample_acceptance_input())
-  assert_true(release_plan_has_command(plan, "git tag v0.1.0"))
-  assert_false(release_plan_has_command(plan, "git tag vZBZ-ai-nb/cakecheck"))
-  let package_namespace = analyze_namespace(
-    "ZBZ-ai-nb/cakecheck", "https://github.com/ZBZ-ai-nb/cakecheck.git",
+test "default reproduction contract is ready" {
+  let contract = build_reproduction_contract(
+    sample_matrix(),
+    default_matrix_policy(),
   )
-  assert_eq(
-    package_namespace.mooncakes_url(),
-    "https://mooncakes.io/docs/ZBZ-ai-nb/cakecheck",
+  assert_true(contract.is_ready())
+  assert_eq(contract.replay_count, 4)
+  assert_eq(contract.schedule_batch_count, 3)
+  assert_true(contract.to_markdown().contains("matrix-passes"))
+  assert_true(contract.to_json().contains("\"passes\":true"))
+}
+
+///|
+test "strict reproduction contract exposes a failed invariant" {
+  let contract = build_reproduction_contract(
+    sample_matrix(),
+    strict_matrix_policy(),
   )
-}
-
-///|
-test "API compatibility detects breaking changes and release intent" {
-  let before = "pub fn parse(String) -> String\npub(all) struct Config {\nvalue : String\n}\n"
-  let after = "pub fn parse(String) -> String\npub fn report(String) -> String\npub(all) struct Config {\nvalue : Int\n}\n"
-  let breaking = analyze_api_compatibility(before, after)
-  assert_false(breaking.is_compatible())
-  assert_true(breaking.has_changes())
-  assert_eq(breaking.added.length(), 1)
-  assert_eq(breaking.removed.length(), 0)
-  assert_eq(breaking.changed.length(), 1)
-  assert_eq(breaking.changed[0].identity, "struct:Config")
-  assert_eq(breaking.required_bump, Major)
-  assert_true(contains(breaking.to_markdown(), "API Compatibility"))
-  let stable = analyze_api_compatibility(before, before)
-  assert_true(stable.is_compatible())
-  assert_eq(stable.required_bump, SameVersion)
-  assert_eq(api_snapshot_declarations(after).length(), 3)
-}
-
-///|
-test "API release contract checks declared SemVer against snapshot drift" {
-  let before = "pub fn parse(String) -> String\n"
-  let after = before + "pub fn report(String) -> String\n"
-  let valid = build_api_release_contract(before, after, "0.1.0", "0.2.0")
-  assert_true(valid.is_compatible())
-  assert_true(valid.passes())
-  assert_eq(valid.required_bump, Minor)
-  assert_eq(valid.declared_bump, Minor)
-  assert_true(contains(valid.summary(), "release-contract=yes"))
-  assert_true(contains(valid.to_json(), "\"declared_bump\":\"minor\""))
-  assert_true(contains(valid.to_json(), "\"passes\":true"))
-  let invalid = build_api_release_contract(before, after, "0.1.0", "0.1.1")
-  assert_false(invalid.passes())
-  assert_true(contains(invalid.to_markdown(), "Contract passes: no"))
-}
-
-///|
-test "API migration ledger turns drift into stable migration tasks" {
-  let before = "pub fn parse(String) -> String\npub(all) struct Config {\nvalue : String\n}\n"
-  let after = "pub fn parse(String) -> String\npub fn report(String) -> String\npub(all) struct Config {\nvalue : Int\n}\n"
-  let compatibility = analyze_api_compatibility(before, after)
-  let plan = build_api_migration_plan(compatibility)
-  assert_eq(plan.items.length(), 2)
-  assert_eq(plan.advisory_count, 1)
-  assert_eq(plan.breaking_count, 1)
-  assert_true(plan.has_breaking_changes())
-  assert_eq(plan.items[0].id, "added:fn:report")
-  assert_eq(plan.items[0].risk, Informational)
-  assert_eq(plan.items[0].action, Adopt)
-  assert_eq(plan.items[1].id, "changed:struct:Config")
-  assert_eq(plan.items[1].risk, Breaking)
-  assert_eq(plan.items[1].action, Migrate)
-  assert_true(contains(plan.to_markdown(), "API Migration Ledger"))
-  assert_true(contains(plan.to_json(), "\"migration_required\":true"))
-  assert_true(contains(plan.items[1].summary(), "migrate"))
-}
-
-///|
-test "readme workflow and license analyzers expose richer metrics" {
-  let input = sample_acceptance_input()
-  let readme = analyze_readme(input.readme)
-  let workflow = analyze_workflow(input.ci)
-  let license = analyze_license(input.license_text)
-  assert_true(readme.is_complete())
-  assert_true(readme.has_support_scope)
-  assert_true(readme.has_unsupported_scope)
-  assert_true(readme.command_count >= 5)
-  assert_true(workflow.is_acceptance_ready())
-  assert_true(workflow.has_publish_dry_run)
-  assert_true(workflow.coverage_score() >= 95)
-  assert_true(license.is_publishable())
-  assert_eq(license_family_name(license.family), "MIT")
-  assert_true(contains(readme_topic_table(readme), "installation"))
-  assert_true(contains(workflow_command_table(workflow), "moon test"))
-  assert_true(contains(license.to_markdown(), "License Facts"))
-}
-
-///|
-test "evidence matrix summarizes acceptance requirements" {
-  let matrix = build_acceptance_evidence(sample_acceptance_input())
-  assert_true(matrix.is_complete())
-  assert_eq(matrix.missing_count, 0)
-  assert_eq(matrix.acceptance_label(), "complete")
-  assert_true(matrix.coverage_percent() == 100)
-  assert_true(matrix.has("mooncakes"))
-  assert_eq(matrix.missing_label_text(), "none")
-  assert_true(contains(matrix.to_markdown(), "Acceptance Evidence"))
-  assert_true(contains(matrix.to_json(), "\"coverage\":100"))
-}
-
-///|
-test "release plan reports blockers and validation commands" {
-  let ready = build_release_plan(sample_acceptance_input())
-  assert_false(ready.is_blocked())
-  assert_true(ready.required_steps().length() >= 5)
-  assert_true(ready.validation_steps().length() >= 3)
-  assert_true(ready.publish_steps().length() >= 2)
-  assert_true(release_plan_has_command(ready, "moon publish --dry-run"))
-  assert_true(contains(ready.command_script(), "moon test --deny-warn"))
-  assert_true(contains(ready.to_markdown(), "Release Plan"))
-  let blocked = build_release_plan(sample_risky_input())
-  assert_true(blocked.is_blocked())
-  assert_true(blocked.blockers.length() > 0)
-  assert_true(contains(release_plan_table([ready, blocked]), "Blockers"))
-}
-
-///|
-test "quality matrix and acceptance review combine all signals" {
-  let review = review_acceptance(sample_acceptance_input())
-  assert_true(review.is_likely_to_pass())
-  assert_false(review.is_submission_risky())
-  assert_eq(review.level, AcceptanceReady)
-  assert_true(review.quality.is_competitive())
-  assert_true(review.positive_signals().length() >= 3)
-  assert_true(review.next_actions().length() > 0)
-  assert_true(contains(review.summary(), "acceptance=ready"))
-  assert_true(contains(review.to_markdown(), "Acceptance Review"))
-  assert_true(contains(acceptance_reviews_table([review]), "Decision"))
-  match quality_axis_named(review.quality, "ci") {
-    Some(axis) => assert_true(axis.score >= 95)
-    None => fail("expected ci axis")
+  assert_false(contract.is_ready())
+  match contract_invariant(contract, "policy-output") {
+    None => assert_true(false)
+    Some(invariant) => assert_false(invariant.passes)
   }
 }
 
 ///|
-fn sample_acceptance_input() -> AuditInput {
-  audit_input(
-    "name = \"ZBZ-ai-nb/cakecheck\"\nversion = \"0.1.0\"\nreadme = \"README.md\"\nrepository = \"https://github.com/ZBZ-ai-nb/cakecheck.git\"\nlicense = \"MIT\"\ndescription = \"MoonBit package readiness auditor for Mooncakes releases\"\npreferred_target = \"wasm\"\n",
-    "# CakeCheck\n\nPackage: ZBZ-ai-nb/cakecheck\n\n## Installation\n\n```bash\nmoon add ZBZ-ai-nb/cakecheck@0.1.0\n```\n\n## Usage\n\n```bash\nmoon run cmd/main\n```\n\n## Example\n\n```bash\nmoon run examples/basic\n```\n\n## Validation\n\n```bash\nmoon check --target all\nmoon build\nmoon test --target all\nmoon publish --dry-run\n```\n\n## Support scope\n\nAudits MoonBit package metadata, README, CI, license, repository and release evidence.\n\n## Unsupported scope\n\nIt does not upload packages or change GitHub settings automatically.\n\n## License\n\nMIT\n",
-    "name: CI\njobs:\n  test:\n    steps:\n      - uses: actions/checkout@v4\n      - run: curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash\n      - run: moon check --target all\n      - run: moon build\n      - run: moon test --target all\n      - run: moon run examples/basic\n      - run: moon publish --dry-run\n",
-    "MIT License\n\nCopyright (c) 2026 Zhang Bingzheng\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND.\n",
-    "# Changelog\n\n## 0.1.0\n\n- Initial public release.\n", true, 10, true,
+test "target profile tables are machine readable" {
+  let targets = [Native, Js, Wasm, WasmGc]
+  assert_true(target_profiles_markdown(targets).contains("wasm-gc"))
+  assert_true(target_profiles_json(targets).contains("\"process\":false"))
+  assert_eq(target_profile_capabilities(Native).length(), 3)
+  assert_eq(target_profile_capabilities(Wasm).length(), 0)
+}
+
+///|
+test "policy catches success scenarios without output" {
+  let source = "matrix name=x version=0.3.0\n" +
+    "scenario id=x command=run targets=native expected=success required=true\n"
+  let manifest = parse_scenario_manifest(source)
+  let issues = policy_issues(manifest, default_matrix_policy())
+  assert_true(has_issue(issues, "policy-output-missing"))
+}
+
+///|
+test "metrics describe coverage and target balance" {
+  let metrics = scenario_metrics(sample_matrix())
+  assert_eq(metrics.target_case_count, 4)
+  assert_eq(metrics.coverage_percent, 100)
+  assert_eq(metrics.pass_percent, 100)
+  assert_eq(metrics.total_duration_ms, 40)
+  assert_eq(metrics_average_duration(metrics), 10)
+  assert_eq(metrics_target_gap(metrics), 0)
+  assert_true(metrics.ready())
+  assert_true(metrics.to_markdown().contains("Target balance"))
+  assert_true(metrics.to_json().contains("\"coverage_percent\":100"))
+}
+
+///|
+test "fixture catalog provides distinct reproducible cases" {
+  let kinds = [Minimal, CrossTarget, ExpectedFailure, RestrictedTarget]
+  let mut index = 0
+  while index < kinds.length() {
+    let matrix = scenario_fixture_matrix(kinds[index])
+    assert_true(matrix.issues_have_no_errors())
+    assert_true(scenario_fixture_description(kinds[index]).length() > 0)
+    index += 1
+  }
+  assert_true(scenario_fixture_catalog_markdown().contains("cross-target"))
+  assert_true(scenario_fixture_catalog_json().contains("expected-failure"))
+}
+
+///|
+test "risk report identifies restricted host assumptions" {
+  let source = "matrix name=risk version=0.3.0\n" +
+    "scenario id=bad command=\"read file native\" targets=wasm expected=success " +
+    "output=\"ok\" timeout_ms=100 required=true\n"
+  let matrix = build_scenario_matrix(parse_scenario_manifest(source), [], [Wasm])
+  let report = analyze_scenario_risks(matrix)
+  assert_true(report.high_count >= 1)
+  assert_true(risk_has_code(report, "restricted-host-assumption"))
+  assert_true(report.to_json().contains("restricted-host-assumption"))
+}
+
+///|
+test "timeline records improvement and regression" {
+  let good = sample_matrix()
+  let empty = build_scenario_matrix(
+    parse_scenario_manifest(sample_manifest()),
+    [],
+    [Native, Js, Wasm],
   )
+  let timeline = build_matrix_timeline([empty, good, empty])
+  assert_eq(timeline.snapshots.length(), 3)
+  assert_eq(timeline.improved, 1)
+  assert_eq(timeline.regressed, 1)
+  assert_false(timeline.passes())
+  assert_eq(timeline_ready_count(timeline), 1)
+  assert_true(timeline.to_markdown().contains("Scenario Matrix Timeline"))
+}
+
+///|
+test "fixture kinds expose stable names" {
+  assert_eq(Minimal.name(), "minimal")
+  assert_eq(CrossTarget.name(), "cross-target")
+  assert_eq(ExpectedFailure.name(), "expected-failure")
+  assert_eq(RestrictedTarget.name(), "restricted-target")
+}
+
+///|
+fn sample_manifest() -> String {
+  "matrix name=demo version=0.3.0\n" +
+  "scenario id=hello title=hello command=\"moon run examples/basic --target all\" " +
+  "targets=native,js,wasm expected=success output=\"hello world\" timeout_ms=30000 " +
+  "required=true tags=smoke,docs\n" +
+  "scenario id=lint title=lint command=\"moon fmt --check\" targets=native " +
+  "expected=success output=\"lint ok\" timeout_ms=30000 required=true tags=quality\n"
+}
+
+///|
+fn sample_observation(
+  id : String,
+  target : ScenarioTarget,
+  digest : String,
+) -> ScenarioObservation {
+  ScenarioObservation::{
+    id,
+    target,
+    status: Passed,
+    stdout: if id == "lint" {
+      "lint ok"
+    } else {
+      "hello world"
+    },
+    stderr: "",
+    duration_ms: 10,
+    evidence_digest: digest,
+  }
+}
+
+///|
+fn sample_matrix() -> ScenarioMatrix {
+  let manifest = parse_scenario_manifest(sample_manifest())
+  let hello_digest = scenario_evidence_digest("hello world", "")
+  let lint_digest = scenario_evidence_digest("lint ok", "")
+  build_scenario_matrix(
+    manifest,
+    [
+      sample_observation("hello", Native, hello_digest),
+      sample_observation("hello", Js, hello_digest),
+      sample_observation("hello", Wasm, hello_digest),
+      sample_observation("lint", Native, lint_digest),
+    ],
+    [Native, Js, Wasm],
+  )
+}
+
+///|
+fn has_issue(issues : Array[ScenarioIssue], code : String) -> Bool {
+  let mut index = 0
+  while index < issues.length() {
+    if issues[index].code == code {
+      return true
+    }
+    index += 1
+  }
+  false
 }

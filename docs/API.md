@@ -1,93 +1,110 @@
 # API 说明
 
-CakeCheck 的主 API 面向“接口快照变化如何形成迁移任务并匹配发布版本”这一单一工作流。
-快照输入来自 MoonBit 的 `moon info`，版本输入来自 `moon.mod` 或发布脚本。
+CakeCheck 的 API 围绕“场景声明 -> 运行观察 -> 目标矩阵 -> 复现证据”这一条工作流。
+它不读取文件、不执行命令、不解析公共接口快照，也不访问网络。
 
-## 快照比较
+## 场景声明
 
 ```moonbit
-let compatibility = @audit.analyze_api_compatibility(
-  before_snapshot,
-  after_snapshot,
-)
-println(compatibility.summary())
+let source = "matrix name=demo version=0.3.0\n" +
+  "scenario id=hello title=hello command=\"moon run examples/basic\" " +
+  "targets=native,js,wasm expected=success output=\"hello world\" " +
+  "timeout_ms=30000 required=true tags=smoke\n"
+let manifest = @audit.parse_scenario_manifest(source)
 ```
 
-比较器只读取以 `pub` 或 `pub(all)` 开头的公共声明。它为每个声明建立稳定身份：
+每行 `scenario` 可以包含：
 
-- 函数使用 `fn:名称`；
-- 结构体、枚举、类型别名和公开变量使用 `种类:名称`；
-- 结构体或枚举的多行内容作为同一个声明比较。
+- `id`：稳定场景 ID，同一个矩阵中不能重复；
+- `title`：人工可读标题；
+- `command`：维护者可以复制执行的命令文本；
+- `targets`：逗号分隔的 `native`、`js`、`wasm` 或 `wasm-gc`；
+- `expected`：`success` 或 `failure`；
+- `output`：应出现在 stdout 中的稳定片段；
+- `timeout_ms`：正整数超时边界；
+- `required`：是否进入验收覆盖；
+- `tags`：用于查询的逗号分隔标签。
 
-结果字段：
+解析结果是 `ScenarioManifest`，其中 `specs` 保存有效声明，`issues` 保存带代码和修复
+提示的解析问题。
 
-- `added`：新快照中出现、旧快照中没有同名身份的声明；
-- `removed`：旧快照中出现、新快照中没有同名身份的声明；
-- `changed`：身份相同但完整公开声明内容不同的 `ApiChange`；
-- `required_bump`：变化对应的最小版本升级。
-
-当前采用保守发布策略：
-
-| 快照变化 | 最小升级 | 原因 |
-| --- | --- | --- |
-| 无变化 | same | 只允许保持版本或正常向前发布 |
-| 仅新增公开声明 | minor | 新增能力不应破坏已有调用者 |
-| 删除声明 | major | 旧调用者可能无法编译 |
-| 同名声明内容变化 | major | 签名、字段或公开结构变化可能破坏调用者 |
-
-## API 发布契约
+## 运行观察
 
 ```moonbit
-let contract = @audit.build_api_release_contract(
-  before_snapshot,
-  after_snapshot,
-  "0.1.0",
-  "0.2.0",
-)
-if contract.passes() {
-  println("release can proceed")
+let observation = @audit.ScenarioObservation::{
+  id: "hello",
+  target: @audit.Native,
+  status: @audit.Passed,
+  stdout: "hello world",
+  stderr: "",
+  duration_ms: 14,
+  evidence_digest: @audit.scenario_evidence_digest("hello world", ""),
 }
 ```
 
-`ApiReleaseContract` 同时保存：
+`ScenarioObservation` 是调用方执行命令后的事实记录。`Passed`、`Failed` 和 `Skipped` 是
+运行状态；预期失败场景使用 `expected=failure`，因此“命令失败”本身可以是通过的行为。
 
-- `before_version` 与 `after_version`；
-- 快照推导出的 `required_bump`；
-- 版本号实际推导出的 `declared_bump`；
-- `passes`：实际 bump 不低于所需 bump 且版本是有效的向前升级。
-
-版本可以安全地过度升级。例如只新增 API 时使用 major 仍然通过；删除 API 使用 patch 或
-minor 则失败。版本回退和非法版本始终失败。
-
-## API 迁移账本
+观察记录也可以使用文本格式交换：
 
 ```moonbit
-let plan = @audit.build_api_migration_plan(compatibility)
-println(plan.to_markdown())
+let text = @audit.observations_to_text([observation])
+let parsed = @audit.parse_observation_records(text)
 ```
 
-`ApiMigrationPlan` 是本项目区别于普通 release checker 的核心对象。它把变化按稳定 ID 编排为：
-
-- `added:...` + `adopt`：新增能力，现有调用者无需迁移；
-- `changed:...` + `migrate`：同名公共契约变化，需要审阅调用方；
-- `removed:...` + `replace`：删除声明，需要替代入口或迁移说明。
-
-计划同时提供 `breaking_count`、`advisory_count`、风险级别和 JSON/Markdown 输出，
-但不扫描下游仓库，也不虚构调用方信息；它只生成维护者可以继续处理的迁移账本。
-## 输出
+## 矩阵校验
 
 ```moonbit
+let matrix = @audit.build_scenario_matrix(
+  manifest,
+  [observation],
+  [@audit.Native, @audit.Js, @audit.Wasm],
+)
+let checked = @audit.apply_policy(matrix, @audit.default_matrix_policy())
+if checked.passes() {
+  println("all required target cases are reproducible")
+}
+```
+
+矩阵会关联场景和观察，并报告：
+
+- 重复场景 ID 或重复观察；
+- 缺少必需观察；
+- 观察目标未在场景中声明；
+- stdout 不含期望片段；
+- 运行耗时超过场景边界；
+- 观察缺少 evidence digest；
+- 选定目标没有必需场景覆盖。
+
+`ScenarioMatrix::to_markdown()` 和 `to_json()` 输出人工报告与机器数据。
+
+## 策略与目标画像
+
+`default_matrix_policy()` 要求 Native、JavaScript、Wasm 目标至少各有一个必需场景；
+`strict_matrix_policy()` 还要求 Wasm GC，并禁止预期失败场景。`target_profile(target)`
+说明目标是否支持文件、网络和进程能力，帮助维护者识别把宿主假设带入受限目标的问题。
+
+## 调度、重放与契约
+
+```moonbit
+let schedule = @audit.build_schedule(checked)
+let replay = @audit.build_replay_envelopes(checked)
+let contract = @audit.build_reproduction_contract(
+  checked,
+  @audit.default_matrix_policy(),
+)
+println(@audit.schedule_markdown(schedule))
+println(@audit.replay_envelopes_to_json(replay))
 println(contract.to_markdown())
-println(contract.to_json())
 ```
 
-Markdown 用于 CI artifact、Issue 和人工发布审阅；JSON 用于 CI 门禁或上层发布工具。
-JSON 只包含稳定摘要字段，不包含路径、网络响应或账号 token。
+调度器按目标建立稳定批次；重放封装为每个观察生成稳定 `replay_key`，并脱敏常见本机路径；
+复现契约汇总矩阵摘要、目标覆盖、调度顺序、重放数量和证据摘要等不变量。
 
-## 兼容保留 API
+## 查询、历史与指标
 
-项目仍公开 `AuditInput`、`AuditReport`、`EvidenceMatrix`、`ReleasePlan` 等早期接口。
-它们用于已有使用者的工程证据和迁移兼容，不改变当前项目的主边界：
-CakeCheck 的新增和重点能力是 API 快照漂移、迁移账本与版本发布契约。
+`query_scenario_ids` 支持按标签、目标、状态和 `required_only` 查询。`diff_scenario_matrices`
+报告新增、删除、回归、恢复和不变场景。`scenario_metrics` 输出目标覆盖率、观察通过率、
+耗时区间和目标平衡分数。`analyze_scenario_risks` 则专门标记受限目标中的宿主能力假设。
 
-这些辅助 API 不会读取磁盘、不执行 GitHub Actions、不登录 GitHub/Mooncakes，也不会自动发布。
+所有输出都是纯文本或纯数据；库不会替调用方运行命令，也不会声称观察结果来自真实 runner。

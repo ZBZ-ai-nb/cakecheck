@@ -1,31 +1,21 @@
 # Changelog
 
-## 0.2.0
+## 0.3.0 - local candidate
 
-- Refocused the primary project boundary on public API release contracts.
-- Added declaration identity matching for `pkg.generated.mbti` snapshots.
-- Distinguished added, removed and changed public declarations.
-- Added an API migration ledger with stable task IDs, risk levels and migration actions.
-- Added SemVer contract validation with Markdown and JSON output.
-- Updated examples, application materials and differentiation evidence after the
-  competitive scan.
+- Replaced the previous API compatibility/release-gate direction with a cross-target scenario reproduction matrix.
+- Added `ScenarioManifest`, `ScenarioMatrix` and explicit `ScenarioObservation` records.
+- Added Native, JavaScript, Wasm and Wasm GC target profiles and coverage policies.
+- Added deterministic run schedules, evidence digests, replay envelopes and machine-path redaction.
+- Added reproduction contracts, scenario history diffs, portability risks and runtime metrics.
+- Added observation text/JSON exchange and four built-in scenario fixtures.
+- Added 36 tests and runnable matrix/CLI examples.
 
-## 0.1.0
+## 0.2.0 - historical candidate
 
-- Added MoonBit package audit data model.
-- Added moon.mod parser and package metadata checks.
-- Added README, CI, license, repository and release checks.
-- Added scoring, gate profiles, remediation plans, Markdown report export and JSON summary export.
-- Added audit diff support for comparing quality changes between two reports.
-- Added README structure analysis, CI workflow analysis and license fact extraction.
-- Added semantic version parsing, version comparison and release bump suggestions.
-- Added Mooncakes namespace analysis and GitHub repository alignment checks.
-- Added acceptance evidence matrix, release plan generator, quality matrix and final acceptance review model.
-- Expanded MoonBit source to more than 4,000 effective lines with runnable feature code and tests.
-- Added local acceptance self-review, push/release checklist and development record for review evidence.
-- Added `moon info` generated API snapshot files for interface review.
-- Added contribution guide, security policy and open source compliance record.
-- Strengthened CI with formatting, deny-warn checks, strict tests and API snapshot verification.
-- Fixed SemVer metadata handling, Mooncakes documentation URLs and version-aware release tags.
-- Added the initial public API snapshot compatibility analysis with SemVer bump recommendations.
-- Added examples, tests, CI workflow, README and design docs.
+- This candidate was withdrawn after review because its public API compatibility and SemVer workflow
+  overlapped with existing MoonBit projects. Its API-specific implementation is removed from the
+  current source tree; the change is recorded here for traceability.
+
+## 0.1.0 - historical package
+
+- Initial package metadata, examples, CI and engineering documentation.

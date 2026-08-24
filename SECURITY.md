@@ -1,32 +1,25 @@
-# Security Policy
+# Security Notes
 
-CakeCheck is a local audit library. It accepts text supplied by a caller and returns structured reports. The core package is designed to avoid account credentials, network access, file deletion and repository mutation.
+CakeCheck is a pure data-processing library. It accepts scenario text and observation values from
+the caller and returns structured reports. The core package does not read files, execute commands,
+access the network, log in to GitHub/Mooncakes, store tokens or mutate a repository.
 
-## Supported Version
+## Evidence handling
 
-| Version | Supported |
-| --- | --- |
-| 0.1.x | Yes |
+Observation stdout and stderr may contain secrets, absolute paths, usernames or service responses.
+Callers must inspect output before publishing it. `redact_machine_paths` removes common Windows and
+Unix home prefixes, but it is not a secret scanner and must not be treated as one.
 
-## Reporting Issues
+Evidence digests identify normalized content; they are not cryptographic signatures. Use a signed
+artifact service outside the core library when a release requires authenticity guarantees.
 
-For contest review and repository maintenance, open a GitHub issue in the public repository after confirming the correct account is being used:
+## Scenario commands
 
-```text
-https://github.com/ZBZ-ai-nb/cakecheck
-```
+The `command` field is descriptive data. CakeCheck never executes it and never interprets shell
+metacharacters. A runner or CI adapter that executes commands must apply its own allowlist, timeout,
+working-directory and environment isolation.
 
-Do not include access tokens, Mooncakes credentials, private repository URLs or personal identity documents in public issues.
+## Reporting a problem
 
-## Security Boundaries
-
-CakeCheck does not:
-
-- log in to GitHub or Mooncakes;
-- push commits;
-- publish packages;
-- delete files;
-- execute commands supplied by audited README or CI text;
-- fetch remote resources from the core library.
-
-Future adapters that read files, call APIs or publish packages should be implemented outside the core audit library and should document their credential handling separately.
+Do not include tokens, private logs or personal data in a public issue. Provide a minimal scenario
+manifest, a redacted observation and the failing test or report code.

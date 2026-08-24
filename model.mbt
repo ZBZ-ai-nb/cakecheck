@@ -1,537 +1,502 @@
 ///|
-pub(all) enum Severity {
-  Pass
-  Info
+pub(all) enum ScenarioTarget {
+  Native
+  Js
+  Wasm
+  WasmGc
+} derive(Debug, Eq)
+
+///|
+pub fn ScenarioTarget::name(self : ScenarioTarget) -> String {
+  match self {
+    Native => "native"
+    Js => "js"
+    Wasm => "wasm"
+    WasmGc => "wasm-gc"
+  }
+}
+
+///|
+pub fn scenario_target(value : String) -> ScenarioTarget? {
+  match ascii_lower(trim_ascii(value)) {
+    "native" => Some(Native)
+    "js" => Some(Js)
+    "wasm" => Some(Wasm)
+    "wasm-gc" => Some(WasmGc)
+    _ => None
+  }
+}
+
+///|
+pub fn all_scenario_targets() -> Array[ScenarioTarget] {
+  [Native, Js, Wasm, WasmGc]
+}
+
+///|
+pub(all) enum ExpectedStatus {
+  Success
+  Failure
+} derive(Debug, Eq)
+
+///|
+pub fn ExpectedStatus::name(self : ExpectedStatus) -> String {
+  match self {
+    Success => "success"
+    Failure => "failure"
+  }
+}
+
+///|
+pub fn expected_status(value : String) -> ExpectedStatus? {
+  match ascii_lower(trim_ascii(value)) {
+    "success" => Some(Success)
+    "pass" => Some(Success)
+    "failure" => Some(Failure)
+    "fail" => Some(Failure)
+    _ => None
+  }
+}
+
+///|
+pub(all) enum ObservationStatus {
+  Passed
+  Failed
+  Skipped
+} derive(Debug, Eq)
+
+///|
+pub fn ObservationStatus::name(self : ObservationStatus) -> String {
+  match self {
+    Passed => "passed"
+    Failed => "failed"
+    Skipped => "skipped"
+  }
+}
+
+///|
+pub(all) enum IssueSeverity {
+  Notice
   Warning
   Error
 } derive(Debug, Eq)
 
 ///|
-pub(all) enum Category {
-  Manifest
-  Readme
-  CI
-  License
-  Release
-  Repository
+pub fn IssueSeverity::name(self : IssueSeverity) -> String {
+  match self {
+    Notice => "notice"
+    Warning => "warning"
+    Error => "error"
+  }
+}
+
+///|
+pub(all) struct ScenarioSpec {
+  id : String
+  title : String
+  command : String
+  targets : Array[ScenarioTarget]
+  expected : ExpectedStatus
+  expected_output : String
+  timeout_ms : Int
+  required : Bool
+  tags : Array[String]
 } derive(Debug, Eq)
 
 ///|
-pub(all) enum AuditProfile {
-  Quick
-  Release
-  Hackathon
+pub fn ScenarioSpec::target_names(self : ScenarioSpec) -> String {
+  join_target_names(self.targets)
+}
+
+///|
+pub fn ScenarioSpec::has_target(
+  self : ScenarioSpec,
+  target : ScenarioTarget,
+) -> Bool {
+  contains_target(self.targets, target)
+}
+
+///|
+pub fn ScenarioSpec::has_tag(self : ScenarioSpec, tag : String) -> Bool {
+  contains_string(self.tags, tag)
+}
+
+///|
+pub(all) struct ScenarioObservation {
+  id : String
+  target : ScenarioTarget
+  status : ObservationStatus
+  stdout : String
+  stderr : String
+  duration_ms : Int
+  evidence_digest : String
 } derive(Debug, Eq)
 
 ///|
-pub(all) struct AuditInput {
-  moon_mod : String
-  readme : String
-  ci : String
-  license_text : String
-  changelog : String
-  repository_public : Bool
-  commit_count : Int
-  package_published : Bool
+pub fn ScenarioObservation::is_passed(self : ScenarioObservation) -> Bool {
+  self.status == Passed
+}
+
+///|
+pub(all) struct ScenarioIssue {
+  code : String
+  severity : IssueSeverity
+  scenario_id : String
+  target : String
+  message : String
+  hint : String
 } derive(Debug, Eq)
 
 ///|
-pub(all) struct ManifestField {
-  key : String
-  value : String
-  line : Int
+pub(all) struct ScenarioManifest {
+  name : String
+  version : String
+  specs : Array[ScenarioSpec]
+  issues : Array[ScenarioIssue]
 } derive(Debug, Eq)
 
 ///|
-pub(all) struct ManifestInfo {
-  fields : Array[ManifestField]
-  duplicates : Array[String]
-  malformed_lines : Array[Int]
+pub(all) struct ParsedScenario {
+  spec : ScenarioSpec?
+  issues : Array[ScenarioIssue]
 } derive(Debug, Eq)
 
 ///|
-pub(all) struct AuditCheck {
-  category : Category
-  severity : Severity
+pub(all) struct TargetCoverage {
+  target : ScenarioTarget
+  required_cases : Int
+  observed_cases : Int
+  passed_cases : Int
+  complete : Bool
+} derive(Debug, Eq)
+
+///|
+pub(all) struct ScenarioMatrix {
+  name : String
+  version : String
+  specs : Array[ScenarioSpec]
+  observations : Array[ScenarioObservation]
+  coverage : Array[TargetCoverage]
+  issues : Array[ScenarioIssue]
+  required_count : Int
+  completed_count : Int
+  passed_count : Int
+  failed_count : Int
+  skipped_count : Int
+} derive(Debug, Eq)
+
+///|
+pub fn ScenarioMatrix::passes(self : ScenarioMatrix) -> Bool {
+  self.issues_have_no_errors() &&
+  self.failed_count == 0 &&
+  self.skipped_count == 0 &&
+  self.completed_count == self.required_count
+}
+
+///|
+pub fn ScenarioMatrix::issues_have_no_errors(self : ScenarioMatrix) -> Bool {
+  let mut index = 0
+  while index < self.issues.length() {
+    if self.issues[index].severity == Error {
+      return false
+    }
+    index += 1
+  }
+  true
+}
+
+///|
+pub fn ScenarioMatrix::coverage_for(
+  self : ScenarioMatrix,
+  target : ScenarioTarget,
+) -> TargetCoverage? {
+  let mut index = 0
+  while index < self.coverage.length() {
+    if self.coverage[index].target == target {
+      return Some(self.coverage[index])
+    }
+    index += 1
+  }
+  None
+}
+
+///|
+pub(all) struct ScenarioDiff {
+  added_ids : Array[String]
+  removed_ids : Array[String]
+  regressed_ids : Array[String]
+  recovered_ids : Array[String]
+  unchanged_count : Int
+} derive(Debug, Eq)
+
+///|
+pub fn ScenarioDiff::has_regressions(self : ScenarioDiff) -> Bool {
+  self.regressed_ids.length() > 0
+}
+
+///|
+pub(all) struct TargetProfile {
+  target : ScenarioTarget
+  label : String
+  supports_files : Bool
+  supports_network : Bool
+  supports_process : Bool
+  notes : String
+} derive(Debug, Eq)
+
+///|
+pub(all) struct ScenarioQuery {
+  tag : String
+  target : ScenarioTarget?
+  status : ObservationStatus?
+  required_only : Bool
+} derive(Debug, Eq)
+
+///|
+pub(all) struct ScenarioStats {
+  scenario_count : Int
+  target_case_count : Int
+  required_case_count : Int
+  observed_case_count : Int
+  passed_case_count : Int
+  failed_case_count : Int
+  missing_case_count : Int
+} derive(Debug, Eq)
+
+///|
+pub(all) struct MatrixPolicy {
+  required_targets : Array[ScenarioTarget]
+  max_timeout_ms : Int
+  require_evidence : Bool
+  require_output_for_success : Bool
+  allow_failure_scenarios : Bool
+} derive(Debug, Eq)
+
+///|
+pub(all) struct RunPlanStep {
+  index : Int
+  scenario_id : String
+  target : ScenarioTarget
+  command : String
+  expected : ExpectedStatus
+  timeout_ms : Int
+  required : Bool
+} derive(Debug, Eq)
+
+///|
+pub(all) struct ObservationParseResult {
+  observations : Array[ScenarioObservation]
+  issues : Array[ScenarioIssue]
+} derive(Debug, Eq)
+
+///|
+pub(all) struct ParsedObservation {
+  observation : ScenarioObservation?
+  issues : Array[ScenarioIssue]
+} derive(Debug, Eq)
+
+///|
+pub(all) enum ScheduleLane {
+  Portable
+  HostBound
+  Restricted
+} derive(Debug, Eq)
+
+///|
+pub fn ScheduleLane::name(self : ScheduleLane) -> String {
+  match self {
+    Portable => "portable"
+    HostBound => "host-bound"
+    Restricted => "restricted"
+  }
+}
+
+///|
+pub(all) struct ScheduleStep {
+  index : Int
+  case_id : String
+  target : ScenarioTarget
+  lane : ScheduleLane
+  command : String
+  estimated_ms : Int
+} derive(Debug, Eq)
+
+///|
+pub(all) struct ScheduleBatch {
+  index : Int
+  target : ScenarioTarget
+  lane : ScheduleLane
+  steps : Array[ScheduleStep]
+  parallel_safe : Bool
+} derive(Debug, Eq)
+
+///|
+pub(all) struct ReplayEnvelope {
+  case_id : String
+  target : ScenarioTarget
+  command : String
+  expected : ExpectedStatus
+  stdout : String
+  stderr : String
+  duration_ms : Int
+  evidence_digest : String
+  replay_key : String
+} derive(Debug, Eq)
+
+///|
+pub(all) struct ContractInvariant {
+  code : String
+  description : String
+  passes : Bool
+  detail : String
+} derive(Debug, Eq)
+
+///|
+pub(all) struct ReproductionContract {
+  matrix_name : String
+  matrix_version : String
+  matrix_digest : String
+  policy_digest : String
+  invariants : Array[ContractInvariant]
+  replay_count : Int
+  schedule_batch_count : Int
+  passes : Bool
+} derive(Debug, Eq)
+
+///|
+pub(all) enum ScenarioRiskLevel {
+  Low
+  Medium
+  High
+} derive(Debug, Eq)
+
+///|
+pub fn ScenarioRiskLevel::name(self : ScenarioRiskLevel) -> String {
+  match self {
+    Low => "low"
+    Medium => "medium"
+    High => "high"
+  }
+}
+
+///|
+pub(all) struct ScenarioRiskFinding {
+  scenario_id : String
+  target : ScenarioTarget
+  level : ScenarioRiskLevel
   code : String
   message : String
   hint : String
 } derive(Debug, Eq)
 
 ///|
-pub(all) struct Score {
-  pass_count : Int
-  info_count : Int
-  warning_count : Int
-  error_count : Int
-  total : Int
-  readiness : Int
+pub(all) struct ScenarioRiskReport {
+  findings : Array[ScenarioRiskFinding]
+  low_count : Int
+  medium_count : Int
+  high_count : Int
+  passes : Bool
 } derive(Debug, Eq)
 
 ///|
-pub(all) struct AuditReport {
-  package_name : String
-  version : String
-  checks : Array[AuditCheck]
-  score : Score
-} derive(Debug, Eq)
-
-///|
-pub(all) struct GateResult {
-  profile : AuditProfile
-  passed : Bool
-  message : String
-  required_codes : Array[String]
-} derive(Debug, Eq)
-
-///|
-pub(all) struct AuditDiff {
-  before_readiness : Int
-  after_readiness : Int
-  readiness_delta : Int
-  fixed_codes : Array[String]
-  new_problem_codes : Array[String]
-} derive(Debug, Eq)
-
-///|
-pub(all) struct SectionInfo {
-  title : String
-  level : Int
-  line : Int
-  body_lines : Int
-} derive(Debug, Eq)
-
-///|
-pub(all) struct ReadmeMetrics {
-  line_count : Int
-  heading_count : Int
-  code_block_count : Int
-  command_count : Int
-  link_count : Int
-  bullet_count : Int
-  has_installation : Bool
-  has_usage : Bool
-  has_example : Bool
-  has_validation : Bool
-  has_license : Bool
-  has_support_scope : Bool
-  has_unsupported_scope : Bool
-  sections : Array[SectionInfo]
-} derive(Debug, Eq)
-
-///|
-pub(all) struct WorkflowCommand {
-  name : String
-  command : String
-  line : Int
-} derive(Debug, Eq)
-
-///|
-pub(all) struct WorkflowInfo {
-  command_count : Int
-  moon_command_count : Int
-  has_checkout : Bool
-  has_moon_install : Bool
-  has_check : Bool
-  has_build : Bool
-  has_test : Bool
-  has_run : Bool
-  has_publish_dry_run : Bool
-  targets : Array[String]
-  commands : Array[WorkflowCommand]
-} derive(Debug, Eq)
-
-///|
-pub(all) enum LicenseFamily {
-  MIT
-  Apache2
-  BSD2
-  BSD3
-  MPL2
-  UnknownLicense
-} derive(Debug, Eq)
-
-///|
-pub(all) struct LicenseFacts {
-  family : LicenseFamily
-  spdx_id : String
-  osi_approved : Bool
-  has_copyright : Bool
-  has_permission_grant : Bool
-  has_warranty_disclaimer : Bool
-  has_patent_grant : Bool
-} derive(Debug, Eq)
-
-///|
-pub(all) struct SemVerInfo {
-  valid : Bool
-  major : Int
-  minor : Int
-  patch : Int
-  pre_release : String?
-  build_metadata : String?
-} derive(Debug, Eq)
-
-///|
-pub(all) enum VersionBump {
-  Major
-  Minor
-  Patch
-  SameVersion
-  InvalidVersion
-} derive(Debug, Eq)
-
-///|
-pub(all) struct NamespaceInfo {
-  raw : String
-  owner : String
-  package_name : String
-  valid : Bool
-  owner_matches_github : Bool
-  package_matches_repo : Bool
-} derive(Debug, Eq)
-
-///|
-pub(all) struct EvidenceItem {
-  code : String
+pub(all) struct MatrixSnapshot {
   label : String
-  present : Bool
-  source : String
+  digest : String
+  required_count : Int
+  passed_count : Int
+  failed_count : Int
+  skipped_count : Int
+  ready : Bool
 } derive(Debug, Eq)
 
 ///|
-pub(all) struct EvidenceMatrix {
-  items : Array[EvidenceItem]
-  present_count : Int
-  missing_count : Int
+pub(all) struct MatrixTimeline {
+  snapshots : Array[MatrixSnapshot]
+  improved : Int
+  regressed : Int
+  stable : Int
 } derive(Debug, Eq)
 
 ///|
-pub(all) struct ReleaseStep {
-  index : Int
-  command : String
-  required : Bool
-  description : String
+pub(all) struct ScenarioMetrics {
+  scenario_count : Int
+  target_case_count : Int
+  observed_case_count : Int
+  covered_target_count : Int
+  required_target_count : Int
+  passed_count : Int
+  failed_count : Int
+  skipped_count : Int
+  total_duration_ms : Int
+  min_duration_ms : Int
+  max_duration_ms : Int
+  coverage_percent : Int
+  pass_percent : Int
+  balance_score : Int
 } derive(Debug, Eq)
 
 ///|
-pub(all) struct ReleasePlan {
-  package_name : String
-  version : String
-  steps : Array[ReleaseStep]
-  blockers : Array[String]
-} derive(Debug, Eq)
-
-///|
-pub(all) struct QualityAxis {
-  name : String
-  score : Int
-  weight : Int
-  note : String
-} derive(Debug, Eq)
-
-///|
-pub(all) struct QualityMatrix {
-  axes : Array[QualityAxis]
-  weighted_score : Int
-  max_score : Int
-  normalized_score : Int
-} derive(Debug, Eq)
-
-///|
-fn audit_input(
-  moon_mod : String,
-  readme : String,
-  ci : String,
-  license_text : String,
-  changelog : String,
-  repository_public : Bool,
-  commit_count : Int,
-  package_published : Bool,
-) -> AuditInput {
-  AuditInput::{
-    moon_mod,
-    readme,
-    ci,
-    license_text,
-    changelog,
-    repository_public,
-    commit_count,
-    package_published,
-  }
-}
-
-///|
-fn field(key : String, value : String, line : Int) -> ManifestField {
-  ManifestField::{ key, value, line }
-}
-
-///|
-fn manifest_info(
-  fields : Array[ManifestField],
-  duplicates : Array[String],
-  malformed_lines : Array[Int],
-) -> ManifestInfo {
-  ManifestInfo::{ fields, duplicates, malformed_lines }
-}
-
-///|
-fn check(
-  category : Category,
-  severity : Severity,
+fn scenario_issue(
   code : String,
+  severity : IssueSeverity,
+  scenario_id : String,
+  target : String,
   message : String,
   hint : String,
-) -> AuditCheck {
-  AuditCheck::{ category, severity, code, message, hint }
+) -> ScenarioIssue {
+  ScenarioIssue::{ code, severity, scenario_id, target, message, hint }
 }
 
 ///|
-fn score(
-  pass_count : Int,
-  info_count : Int,
-  warning_count : Int,
-  error_count : Int,
-  total : Int,
-  readiness : Int,
-) -> Score {
-  Score::{
-    pass_count,
-    info_count,
-    warning_count,
-    error_count,
-    total,
-    readiness,
+fn contains_target(
+  items : Array[ScenarioTarget],
+  value : ScenarioTarget,
+) -> Bool {
+  let mut index = 0
+  while index < items.length() {
+    if items[index] == value {
+      return true
+    }
+    index += 1
   }
+  false
 }
 
 ///|
-fn audit_report(
-  package_name : String,
-  version : String,
-  checks : Array[AuditCheck],
-  score : Score,
-) -> AuditReport {
-  AuditReport::{ package_name, version, checks, score }
-}
-
-///|
-fn gate_result(
-  profile : AuditProfile,
-  passed : Bool,
-  message : String,
-  required_codes : Array[String],
-) -> GateResult {
-  GateResult::{ profile, passed, message, required_codes }
-}
-
-///|
-fn audit_diff(
-  before_readiness : Int,
-  after_readiness : Int,
-  readiness_delta : Int,
-  fixed_codes : Array[String],
-  new_problem_codes : Array[String],
-) -> AuditDiff {
-  AuditDiff::{
-    before_readiness,
-    after_readiness,
-    readiness_delta,
-    fixed_codes,
-    new_problem_codes,
+fn contains_string(items : Array[String], value : String) -> Bool {
+  let mut index = 0
+  while index < items.length() {
+    if items[index] == value {
+      return true
+    }
+    index += 1
   }
+  false
 }
 
 ///|
-fn section_info(
-  title : String,
-  level : Int,
-  line : Int,
-  body_lines : Int,
-) -> SectionInfo {
-  SectionInfo::{ title, level, line, body_lines }
-}
-
-///|
-fn readme_metrics(
-  line_count : Int,
-  heading_count : Int,
-  code_block_count : Int,
-  command_count : Int,
-  link_count : Int,
-  bullet_count : Int,
-  has_installation : Bool,
-  has_usage : Bool,
-  has_example : Bool,
-  has_validation : Bool,
-  has_license : Bool,
-  has_support_scope : Bool,
-  has_unsupported_scope : Bool,
-  sections : Array[SectionInfo],
-) -> ReadmeMetrics {
-  ReadmeMetrics::{
-    line_count,
-    heading_count,
-    code_block_count,
-    command_count,
-    link_count,
-    bullet_count,
-    has_installation,
-    has_usage,
-    has_example,
-    has_validation,
-    has_license,
-    has_support_scope,
-    has_unsupported_scope,
-    sections,
+fn join_target_names(items : Array[ScenarioTarget]) -> String {
+  let mut out = ""
+  let mut index = 0
+  while index < items.length() {
+    if index > 0 {
+      out = out + ","
+    }
+    out = out + items[index].name()
+    index += 1
   }
+  out
 }
 
 ///|
-fn workflow_command(
-  name : String,
-  command : String,
-  line : Int,
-) -> WorkflowCommand {
-  WorkflowCommand::{ name, command, line }
-}
-
-///|
-fn workflow_info(
-  command_count : Int,
-  moon_command_count : Int,
-  has_checkout : Bool,
-  has_moon_install : Bool,
-  has_check : Bool,
-  has_build : Bool,
-  has_test : Bool,
-  has_run : Bool,
-  has_publish_dry_run : Bool,
-  targets : Array[String],
-  commands : Array[WorkflowCommand],
-) -> WorkflowInfo {
-  WorkflowInfo::{
-    command_count,
-    moon_command_count,
-    has_checkout,
-    has_moon_install,
-    has_check,
-    has_build,
-    has_test,
-    has_run,
-    has_publish_dry_run,
-    targets,
-    commands,
+fn join_strings(items : Array[String], separator : String) -> String {
+  let mut out = ""
+  let mut index = 0
+  while index < items.length() {
+    if index > 0 {
+      out = out + separator
+    }
+    out = out + items[index]
+    index += 1
   }
-}
-
-///|
-fn license_facts(
-  family : LicenseFamily,
-  spdx_id : String,
-  osi_approved : Bool,
-  has_copyright : Bool,
-  has_permission_grant : Bool,
-  has_warranty_disclaimer : Bool,
-  has_patent_grant : Bool,
-) -> LicenseFacts {
-  LicenseFacts::{
-    family,
-    spdx_id,
-    osi_approved,
-    has_copyright,
-    has_permission_grant,
-    has_warranty_disclaimer,
-    has_patent_grant,
-  }
-}
-
-///|
-fn semver_info(
-  valid : Bool,
-  major : Int,
-  minor : Int,
-  patch : Int,
-  pre_release : String?,
-  build_metadata : String?,
-) -> SemVerInfo {
-  SemVerInfo::{ valid, major, minor, patch, pre_release, build_metadata }
-}
-
-///|
-fn namespace_info(
-  raw : String,
-  owner : String,
-  package_name : String,
-  valid : Bool,
-  owner_matches_github : Bool,
-  package_matches_repo : Bool,
-) -> NamespaceInfo {
-  NamespaceInfo::{
-    raw,
-    owner,
-    package_name,
-    valid,
-    owner_matches_github,
-    package_matches_repo,
-  }
-}
-
-///|
-fn evidence_item(
-  code : String,
-  label : String,
-  present : Bool,
-  source : String,
-) -> EvidenceItem {
-  EvidenceItem::{ code, label, present, source }
-}
-
-///|
-fn evidence_matrix(
-  items : Array[EvidenceItem],
-  present_count : Int,
-  missing_count : Int,
-) -> EvidenceMatrix {
-  EvidenceMatrix::{ items, present_count, missing_count }
-}
-
-///|
-fn release_step(
-  index : Int,
-  command : String,
-  required : Bool,
-  description : String,
-) -> ReleaseStep {
-  ReleaseStep::{ index, command, required, description }
-}
-
-///|
-fn release_plan(
-  package_name : String,
-  version : String,
-  steps : Array[ReleaseStep],
-  blockers : Array[String],
-) -> ReleasePlan {
-  ReleasePlan::{ package_name, version, steps, blockers }
-}
-
-///|
-fn quality_axis(
-  name : String,
-  score : Int,
-  weight : Int,
-  note : String,
-) -> QualityAxis {
-  QualityAxis::{ name, score, weight, note }
-}
-
-///|
-fn quality_matrix(
-  axes : Array[QualityAxis],
-  weighted_score : Int,
-  max_score : Int,
-  normalized_score : Int,
-) -> QualityMatrix {
-  QualityMatrix::{ axes, weighted_score, max_score, normalized_score }
+  out
 }

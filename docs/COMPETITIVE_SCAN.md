@@ -1,35 +1,53 @@
-# MoonBit 生态重合检索记录
+# MoonBit 公开项目重合检索记录
 
-检索日期：2026-08-21
-检索范围：公开 GitHub 仓库页面和项目 README。
-目的：在重新提交材料前识别与 CakeCheck 主功能相同或相邻的项目，明确输入、输出和非目标。
+检索日期：2026-08-24
 
-## 检索结果
+检索方式：通过公开 GitHub 仓库搜索、项目 README 和 MoonBit 官方 OSC2026 仓库页面核对
+项目定位。目的不是声称穷尽所有作品，而是针对当前选题的关键词和初审反馈做保守排除。
 
-| 项目 | 公开定位 | 关系 | CakeCheck 排除的重合点 |
+## 直接重合风险
+
+| 项目 | 公开定位 | 与 CakeCheck 的关系 | 当前版本的排除措施 |
 | --- | --- | --- | --- |
-| [ZQD-ai-nb/mooncake-auditor](https://github.com/ZQD-ai-nb/mooncake-auditor) | MoonBit 黑客松项目验收检查：README、CI、测试、示例、许可证、Git 历史和发布准备度 | 直接重合（旧定位） | CakeCheck 不再以通用仓库验收清单为主，主功能改为 API 快照与 SemVer 契约 |
-| [gywcs101/MoonDocCheck](https://github.com/gywcs101/MoonDocCheck) | 公共 API 文档注释、README、示例和 CI 的文档质量检查 | 相邻 | CakeCheck 不做 `///` 覆盖率、TODO/FIXME 文档检查或 Markdown 文档质量评分 |
-| [LL728/moonseal](https://github.com/LL728/moonseal) | 测试充分性、mutation testing、coverage 和发布质量门禁 | 相邻 | CakeCheck 不运行测试分析覆盖率，也不做 mutation testing 或趋势看板 |
-| [Tino-hue/moonmark](https://github.com/Tino-hue/moonmark) | MoonBit 依赖图和依赖健康诊断 | 相邻 | CakeCheck 不解析依赖图，不计算依赖健康/新鲜度 |
-| [MoonBit `moon info`](https://github.com/moonbitlang/moonbit-docs/blob/main/next/toolchain/moon/commands.md) | 生成 `pkg.generated.mbti` 公共接口快照，并遵循 SemVer 发布约定 | 上游基础能力 | CakeCheck 不替代快照生成；在快照之上增加声明级变化、迁移账本和发布契约 |
-| [EJJ-ai-nb/harborcheck](https://github.com/EJJ-ai-nb/harborcheck) | README 示例证明、第三方来源和许可证证明、身份和验收材料 | 相邻 | CakeCheck 不提取 README 证明，不做来源/身份档案 |
-| [clbbbb/moonbit-license-audit](https://github.com/clbbbb/moonbit-license-audit) | MoonBit SPDX license metadata auditor | 局部相邻 | CakeCheck 的许可证模块仅作为旧审计兼容接口，主流程不以许可证检查为中心 |
+| [FidollarinLA/moon_api_guard](https://github.com/FidollarinLA/moon_api_guard) | 比较新旧 `.mbti` 接口快照，输出 breaking/compatible、SemVer 建议、CI 退出码和多种报告 | 初审点名的直接重合对象 | CakeCheck 不读取或解析 `.mbti`，不比较声明，不输出 SemVer 建议，不做 API 门禁 |
+| [QinXi-ai/moonguard](https://github.com/QinXi-ai/moonguard) | MoonBit public API compatibility and SemVer guard，支持目录比较、策略、release plan 和 CI | 同一 API 兼容性赛道的相邻成熟项目 | CakeCheck 的输入是场景声明和运行观察，输出是目标覆盖、重放证据和场景契约 |
 
-## 重合处理决定
+这两项是必须明确避开的项目。本次改造删除了原来的 API 兼容性、SemVer 和迁移账本源码，
+不是只修改标题或 README。
 
-初审反馈指出的风险是合理的：旧标题“包发布前质量审计库”无法和
-`mooncake-auditor` 形成足够清晰的边界。本次本地修改采取三项可验证措施：
+## 相邻但不重合
 
-1. `README.md` 首屏改为公共 API 迁移契约检查器；
-2. 新增 `ApiChange`、`ApiMigrationPlan` 和 `ApiReleaseContract`，实现声明级 changed 检测、迁移动作和版本 bump 门禁；
-3. 示例、API 文档、设计说明、申报书和任务报告都以快照输入/迁移账本/版本输出为主，并列出明确非目标。
+| 项目 | 公开定位 | CakeCheck 的边界 |
+| --- | --- | --- |
+| [Luna-Flow/mare_mark](https://github.com/Luna-Flow/mare_mark) | MoonBit payload 的可复现 benchmark、差分验证、调优和报告 | CakeCheck 不测性能、不建立 benchmark 基线；只验证场景行为、目标覆盖和稳定输出证据 |
+| [ZQD-ai-nb/mooncake-auditor](https://github.com/ZQD-ai-nb/mooncake-auditor) | README、CI、测试、示例、许可证、提交历史和发布准备度验收 | CakeCheck 不扫描仓库，不给项目 readiness 分数，不替代验收清单 |
+| [gywcs101/MoonDocCheck](https://github.com/gywcs101/MoonDocCheck) | 文档注释覆盖、README/示例文档质量和报告 | CakeCheck 不评价文档写作质量，不统计注释覆盖 |
+| [LL728/moonseal](https://github.com/LL728/moonseal) | mutation testing、coverage 和测试质量门禁 | CakeCheck 不生成 coverage，不做 mutation testing |
+| [Tino-hue/moonmark](https://github.com/Tino-hue/moonmark) | 依赖图、循环依赖、依赖健康和新鲜度 | CakeCheck 不解析依赖图，不评价依赖健康 |
+| [EJJ-ai-nb/harborcheck](https://github.com/EJJ-ai-nb/harborcheck) | README 代码证明、第三方来源/许可证证明、身份和验收材料 | CakeCheck 不建立来源档案，不做身份或验收材料归档 |
+| [clbbbb/moonbit-license-audit](https://github.com/clbbbb/moonbit-license-audit) | SPDX 许可证元数据审计 | CakeCheck 只记录调用方提供的观察证据，不做许可证识别 |
 
-旧的 `AuditReport`、README/CI/license analyzer 等仍保留，是为了兼容已发布包和提供验收
-supporting evidence；它们不再是项目的创新主张。这样可以让评审直接从代码和运行示例看到
-与通用验收检查器和官方快照生成器都不同的核心工作流。
+## CakeCheck 的独立输入和输出
 
-## 限制
+```text
+scenario manifest + explicit run observations
+  -> scenario/target case validation
+  -> coverage and behavior matrix
+  -> deterministic schedule and replay envelope
+  -> reproduction contract + Markdown/JSON metrics
+```
 
-本记录是公开资料的静态检索，不声称穷尽所有未公开或后来创建的项目。重新提交前应以评审
-看到的公开仓库状态为准；本仓库不会自动登录、抓取或修改任何外部账号。
+与 API Guard 的区别可以由代码直接验证：当前源码中没有 `api_compatibility.mbt`、
+`api_migration.mbt` 或 `semver_analyzer.mbt`；公共入口是
+`parse_scenario_manifest`、`build_scenario_matrix`、`build_reproduction_contract` 和
+`build_replay_envelopes`。
+
+## 公开检索链接
+
+- [GitHub repository search: moon_api_guard](https://github.com/search?q=moon_api_guard&type=repositories)
+- [GitHub repository search: MoonBit API compatibility](https://github.com/search?q=MoonBit+API+compatibility&type=repositories)
+- [MoonBit official OSC2026 repository](https://github.com/moonbitlang/OSC2026)
+- [MoonBit community repositories](https://github.com/orgs/moonbit-community/repositories)
+
+检索结果会随着报名截止和作品公开继续变化，因此本文件记录的是本次提交前的时间点、
+关键词、直接重合对象和主动排除范围。新功能继续扩展时，应重新检索并更新本文件。

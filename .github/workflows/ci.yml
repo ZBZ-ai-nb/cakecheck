@@ -47,7 +47,7 @@ jobs:
       - name: Run CLI smoke
         run: moon run cmd/main
 
-      - name: API snapshot
+      - name: Moon info reproducibility
         run: |
           moon info
           git diff --exit-code -- pkg.generated.mbti cmd/main/pkg.generated.mbti examples/basic/pkg.generated.mbti

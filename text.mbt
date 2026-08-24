@@ -58,12 +58,6 @@ fn starts_with(text : String, prefix : String) -> Bool {
 }
 
 ///|
-fn ends_with(text : String, suffix : String) -> Bool {
-  suffix.length() <= text.length() &&
-  slice(text, text.length() - suffix.length(), text.length()) == suffix
-}
-
-///|
 fn contains(text : String, needle : String) -> Bool {
   if needle.length() == 0 {
     return true
@@ -80,25 +74,6 @@ fn contains(text : String, needle : String) -> Bool {
     index += 1
   }
   false
-}
-
-///|
-fn index_of(text : String, needle : String) -> Int? {
-  if needle.length() == 0 {
-    return Some(0)
-  }
-  if needle.length() > text.length() {
-    return None
-  }
-  let limit = text.length() - needle.length()
-  let mut index = 0
-  while index <= limit {
-    if slice(text, index, index + needle.length()) == needle {
-      return Some(index)
-    }
-    index += 1
-  }
-  None
 }
 
 ///|
@@ -147,59 +122,171 @@ fn ascii_lower(text : String) -> String {
 }
 
 ///|
-fn strip_quotes(text : String) -> String {
-  let trimmed = trim_ascii(text)
-  if trimmed.length() >= 2 &&
-    code_at(trimmed, 0) == 34 &&
-    code_at(trimmed, trimmed.length() - 1) == 34 {
-    slice(trimmed, 1, trimmed.length() - 1)
-  } else {
-    trimmed
-  }
-}
-
-///|
 fn is_digit(code : Int) -> Bool {
   code >= 48 && code <= 57
 }
 
 ///|
-fn is_ident_char(code : Int) -> Bool {
-  (code >= 97 && code <= 122) ||
-  (code >= 65 && code <= 90) ||
-  (code >= 48 && code <= 57) ||
-  code == 95 ||
-  code == 45
+fn parse_int(value : String, fallback : Int) -> Int {
+  let text = trim_ascii(value)
+  if text.length() == 0 {
+    return fallback
+  }
+  let mut index = 0
+  let mut sign = 1
+  if code_at(text, 0) == 45 {
+    sign = -1
+    index = 1
+  }
+  let mut result = 0
+  if index == text.length() {
+    return fallback
+  }
+  while index < text.length() {
+    let code = code_at(text, index)
+    if !is_digit(code) {
+      return fallback
+    }
+    result = result * 10 + code - 48
+    index += 1
+  }
+  result * sign
 }
 
 ///|
-fn has_placeholder(text : String) -> Bool {
-  let lower = ascii_lower(text)
-  contains(lower, "your-owner") ||
-  contains(lower, "your-github") ||
-  contains(lower, "todo") ||
-  contains(text, "<待填写>") ||
-  contains(text, "<MOONCAKES_OWNER>")
-}
-
-///|
-fn severity_name(severity : Severity) -> String {
-  match severity {
-    Pass => "PASS"
-    Info => "INFO"
-    Warning => "WARN"
-    Error => "ERROR"
+fn parse_bool(value : String, fallback : Bool) -> Bool {
+  match ascii_lower(trim_ascii(value)) {
+    "true" => true
+    "yes" => true
+    "1" => true
+    "false" => false
+    "no" => false
+    "0" => false
+    _ => fallback
   }
 }
 
 ///|
-fn category_name(category : Category) -> String {
-  match category {
-    Manifest => "manifest"
-    Readme => "readme"
-    CI => "ci"
-    License => "license"
-    Release => "release"
-    Repository => "repository"
+fn split_csv(value : String) -> Array[String] {
+  let result : Array[String] = []
+  let mut start = 0
+  let mut index = 0
+  while index <= value.length() {
+    if index == value.length() || code_at(value, index) == 44 {
+      let item = trim_ascii(slice(value, start, index))
+      if item.length() > 0 {
+        result.push(item)
+      }
+      start = index + 1
+    }
+    index += 1
   }
+  result
+}
+
+///|
+fn split_words_quoted(text : String) -> Array[String] {
+  let result : Array[String] = []
+  let mut current = ""
+  let mut quoted = false
+  let mut escaped = false
+  let mut index = 0
+  while index < text.length() {
+    let code = code_at(text, index)
+    if escaped {
+      current = current + slice(text, index, index + 1)
+      escaped = false
+    } else if quoted && code == 92 {
+      escaped = true
+    } else if code == 34 {
+      quoted = !quoted
+    } else if !quoted && is_ascii_space(code) {
+      if current.length() > 0 {
+        result.push(current)
+        current = ""
+      }
+    } else {
+      current = current + slice(text, index, index + 1)
+    }
+    index += 1
+  }
+  if escaped {
+    current = current + "\\"
+  }
+  if current.length() > 0 {
+    result.push(current)
+  }
+  result
+}
+
+///|
+fn token_value(tokens : Array[String], key : String) -> String? {
+  let prefix = key + "="
+  let mut index = 0
+  while index < tokens.length() {
+    if starts_with(tokens[index], prefix) {
+      return Some(slice(tokens[index], prefix.length(), tokens[index].length()))
+    }
+    index += 1
+  }
+  None
+}
+
+///|
+fn bool_text(value : Bool) -> String {
+  if value {
+    "true"
+  } else {
+    "false"
+  }
+}
+
+///|
+fn json_escape(value : String) -> String {
+  let mut out = ""
+  let mut index = 0
+  while index < value.length() {
+    let code = code_at(value, index)
+    if code == 34 {
+      out = out + "\\\""
+    } else if code == 92 {
+      out = out + "\\\\"
+    } else if code == 10 {
+      out = out + "\\n"
+    } else if code == 13 {
+      out = out + "\\r"
+    } else if code == 9 {
+      out = out + "\\t"
+    } else {
+      out = out + slice(value, index, index + 1)
+    }
+    index += 1
+  }
+  out
+}
+
+///|
+fn is_valid_identifier(value : String) -> Bool {
+  if value.length() == 0 {
+    return false
+  }
+  let first = code_at(value, 0)
+  if !((first >= 65 && first <= 90) ||
+    (first >= 97 && first <= 122) ||
+    first == 95) {
+    return false
+  }
+  let mut index = 1
+  while index < value.length() {
+    let code = code_at(value, index)
+    if !((code >= 65 && code <= 90) ||
+      (code >= 97 && code <= 122) ||
+      (code >= 48 && code <= 57) ||
+      code == 95 ||
+      code == 45) {
+      return false
+    }
+    index += 1
+  }
+  true
 }

@@ -1,11 +1,19 @@
 # 测试记录
 
-## 2026-08-22 最终版本验证结果
+## 2026-08-24 本地最终候选版本
 
-本次修改新增了公共 API 声明级变化和 SemVer 发布契约测试。最终提交已推送，GitHub Actions
-已成功；`0.2.0` 也已通过 Mooncakes 预检并接受正式发布，目前等待服务端异步构建。
+本次测试对应选题换轨后的 `0.3.0` 候选版本。当前仍未登录 GitHub，代码尚未推送；本文件
+只记录本地真实结果，不把未执行的外部动作写成完成。
 
-验证命令：
+工具链：
+
+```text
+moon 0.1.20260819
+moonc v0.10.9
+moonrun 0.1.20260819
+```
+
+## 验证命令
 
 ```bash
 moon fmt --check
@@ -24,49 +32,38 @@ git diff --check
 
 ```text
 moon fmt --check: pass
+moon check: pass
 moon check --deny-warn: pass
 moon build: pass
-moon test --deny-warn: 22 passed, 0 failed
+moon test: 36 passed, 0 failed
+moon test --deny-warn: 36 passed, 0 failed
 moon run examples/basic: pass
 moon run cmd/main: pass
 moon info: pass
 git diff --check: pass
 ```
 
-新增测试覆盖：
+## 覆盖内容
 
-- 新增公开声明推导 minor；
-- 删除公开声明推导 major；
-- 同名 struct 内容变化归入 `changed` 并推导 major；
-- 实际版本满足所需 bump 时契约通过；
-- 实际版本低于所需 bump 时契约拒绝；
-- API 契约 Markdown/JSON 输出。
-- API 迁移账本的稳定 ID、风险级别和 adopt/migrate/replace 动作。
+- `scenario_parser.mbt`：合法矩阵、引号字段、缺失字段、非法目标和超时；
+- `scenario_matrix.mbt`：重复 ID、重复观察、缺失观察、目标覆盖、输出和耗时；
+- `scenario_format.mbt`：观察记录文本/JSON 解析和序列化；
+- `artifact_digest.mbt`：空白规范化、稳定摘要、矩阵摘要和路径无关证据；
+- `scenario_policy.mbt`：默认/严格目标策略、输出和 evidence 要求；
+- `scenario_schedule.mbt`：目标批次、顺序稳定性、耗时估算和 JSON；
+- `scenario_replay.mbt`：重放 key 唯一性、JSON、digest 和机器路径脱敏；
+- `scenario_contract.mbt`：矩阵、覆盖、策略、调度、重放和证据不变量；
+- `scenario_history.mbt`、`scenario_timeline.mbt`：新增、删除、回归、恢复和趋势；
+- `scenario_analysis.mbt`、`scenario_metrics.mbt`：受限目标风险、覆盖率、通过率和目标平衡；
+- `scenario_fixtures.mbt`：最小、跨目标、预期失败、Wasm 夹具目录。
 
-已有测试继续覆盖：
+## CI 口径
 
-- `moon.mod` 字段解析、重复字段和版本校验；
-- README 主题、中文小节和命令覆盖；
-- CI 命令、许可证、命名空间和 Mooncakes 元数据；
-- 审计报告、门禁、修复计划、证据矩阵、发布计划和验收评审。
+`.github/workflows/ci.yml` 将执行格式、普通检查、严格检查、构建、测试、两个示例和
+`moon info`。生成的 `pkg.generated.mbti` 仅用于 MoonBit 工具链接口快照一致性，不是
+CakeCheck 的业务输入，也不参与当前项目的功能判定。
 
-## 工具链与历史发布
+## 发布状态
 
-之前本地环境曾使用：
-
-```text
-moon 0.1.20260724
-moonc v0.10.5
-```
-
-已有 `ZBZ-ai-nb/cakecheck@0.1.0` 发布记录和公开包页面。本次最终版本为 `0.2.0`，已在
-`ZBZ-ai-nb` 的正确 owner 环境完成 dry-run 和正式发布请求；待服务端构建完成后再做一次
-公开清单确认。
-
-外部验证记录：
-
-```text
-GitHub commit b52f040: pushed to main
-GitHub Actions CI: success
-Mooncakes 0.2.0: accepted, build_status=queued
-```
+本地 `moon.mod` 已切换到候选版本 `0.3.0`，并已完成本地发布前检查。由于用户要求先完成
+本地改造再登录账号，正式 push 和 `moon publish` 留待下一步在统一 `ZBZ-ai-nb` 环境完成。
