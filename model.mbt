@@ -188,7 +188,6 @@ pub(all) struct ScenarioMatrix {
 pub fn ScenarioMatrix::passes(self : ScenarioMatrix) -> Bool {
   self.issues_have_no_errors() &&
   self.failed_count == 0 &&
-  self.skipped_count == 0 &&
   self.completed_count == self.required_count
 }
 

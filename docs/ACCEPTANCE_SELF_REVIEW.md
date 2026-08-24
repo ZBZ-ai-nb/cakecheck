@@ -18,7 +18,7 @@ API 快照比较、SemVer 门禁、迁移账本和通用仓库审计文件已从
 | README | Pass | 安装、场景格式、观察、报告、示例、验证和边界齐全 |
 | 申报书 | Pass | Markdown，一页左右，包含基础、计划、功能、测试、文档、差异化和许可证 |
 | 可运行示例 | Pass | `moon run examples/basic`、`moon run cmd/main` |
-| 测试 | Pass | `moon test --deny-warn`：36 passed, 0 failed |
+| 测试 | Pass | `moon test --deny-warn`：38 passed, 0 failed |
 | 构建与检查 | Pass | `moon check --deny-warn`、`moon build` |
 | 格式与接口 | Pass | `moon fmt --check`、`moon info`、`git diff --check` |
 | CI 配置 | Pass locally | `.github/workflows/ci.yml` 覆盖格式、检查、构建、测试和示例 |

@@ -52,6 +52,12 @@ pub fn build_scenario_matrix(
             passed_count += 1
           } else {
             failed_count += 1
+            let observation_issues = validate_observation(spec, observation)
+            let mut observation_issue_index = 0
+            while observation_issue_index < observation_issues.length() {
+              issues.push(observation_issues[observation_issue_index])
+              observation_issue_index += 1
+            }
           }
         }
       }
@@ -287,7 +293,7 @@ pub fn validate_observation(
       ),
     )
   }
-  if observation.evidence_digest.length() == 0 {
+  if !digest_is_well_formed(observation.evidence_digest) {
     issues.push(
       scenario_issue(
         "observation-evidence-missing",

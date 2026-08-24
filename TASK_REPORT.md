@@ -71,7 +71,7 @@ moon check
 moon check --deny-warn
 moon build
 moon test
-moon test --deny-warn: 36 passed, 0 failed
+moon test --deny-warn: 38 passed, 0 failed
 moon run examples/basic
 moon run cmd/main
 moon info

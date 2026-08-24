@@ -8,9 +8,9 @@
 工具链：
 
 ```text
-moon 0.1.20260819
-moonc v0.10.9
-moonrun 0.1.20260819
+moon 0.1.20260824
+moonc v0.10.10
+moonrun 0.1.20260824
 ```
 
 ## 验证命令
@@ -35,8 +35,8 @@ moon fmt --check: pass
 moon check: pass
 moon check --deny-warn: pass
 moon build: pass
-moon test: 36 passed, 0 failed
-moon test --deny-warn: 36 passed, 0 failed
+moon test: 38 passed, 0 failed
+moon test --deny-warn: 38 passed, 0 failed
 moon run examples/basic: pass
 moon run cmd/main: pass
 moon info: pass

@@ -75,6 +75,29 @@ test "matrix records missing required observations" {
 }
 
 ///|
+test "optional missing observations do not block the matrix" {
+  let source = "matrix name=optional version=0.3.0\n" +
+    "scenario id=required command=run targets=native expected=success " +
+    "output=ok timeout_ms=1000 required=true\n" +
+    "scenario id=optional command=run targets=native expected=success " +
+    "output=optional timeout_ms=1000 required=false\n"
+  let manifest = parse_scenario_manifest(source)
+  let observation = ScenarioObservation::{
+    id: "required",
+    target: Native,
+    status: Passed,
+    stdout: "ok",
+    stderr: "",
+    duration_ms: 2,
+    evidence_digest: scenario_evidence_digest("ok", ""),
+  }
+  let matrix = build_scenario_matrix(manifest, [observation], [Native])
+  assert_true(matrix.passes())
+  assert_eq(matrix.skipped_count, 1)
+  assert_true(has_issue(matrix.issues, "observation-missing"))
+}
+
+///|
 test "matrix detects wrong output and duration" {
   let manifest = parse_scenario_manifest(sample_manifest())
   let observation = ScenarioObservation::{
@@ -89,6 +112,30 @@ test "matrix detects wrong output and duration" {
   let matrix = build_scenario_matrix(manifest, [observation], [Native])
   assert_false(matrix.passes())
   assert_eq(matrix.failed_count, 1)
+  assert_true(has_issue(matrix.issues, "observation-output-mismatch"))
+  assert_true(has_issue(matrix.issues, "observation-timeout"))
+}
+
+///|
+test "matrix explains status and evidence mismatches" {
+  let source = "matrix name=invalid version=0.3.0\n" +
+    "scenario id=case command=run targets=native expected=success " +
+    "output=expected timeout_ms=1000 required=true\n"
+  let manifest = parse_scenario_manifest(source)
+  let observation = ScenarioObservation::{
+    id: "case",
+    target: Native,
+    status: Failed,
+    stdout: "actual",
+    stderr: "error",
+    duration_ms: 2,
+    evidence_digest: "invalid",
+  }
+  let matrix = build_scenario_matrix(manifest, [observation], [Native])
+  assert_false(matrix.passes())
+  assert_true(has_issue(matrix.issues, "observation-status-mismatch"))
+  assert_true(has_issue(matrix.issues, "observation-output-mismatch"))
+  assert_true(has_issue(matrix.issues, "observation-evidence-missing"))
 }
 
 ///|

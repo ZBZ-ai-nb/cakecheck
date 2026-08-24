@@ -25,6 +25,9 @@ let manifest = @audit.parse_scenario_manifest(source)
 - `required`：是否进入验收覆盖；
 - `tags`：用于查询的逗号分隔标签。
 
+`required=true` 的场景是矩阵通过门槛；`required=false` 的场景用于补充诊断和趋势记录。
+可选场景缺少观察时仍会出现在报告的 skipped 统计和 notice 中，但不会单独阻断矩阵通过。
+
 解析结果是 `ScenarioManifest`，其中 `specs` 保存有效声明，`issues` 保存带代码和修复
 提示的解析问题。
 
@@ -73,7 +76,7 @@ if checked.passes() {
 - 观察目标未在场景中声明；
 - stdout 不含期望片段；
 - 运行耗时超过场景边界；
-- 观察缺少 evidence digest；
+- 观察缺少或格式不正确的 evidence digest；
 - 选定目标没有必需场景覆盖。
 
 `ScenarioMatrix::to_markdown()` 和 `to_json()` 输出人工报告与机器数据。
